@@ -6,19 +6,10 @@ package com.alpha.apiautobot.platform;
 public abstract class AbstractPlatform implements Platform{
 
     /**
-     * 连接
+     * 加载配置
      */
     @Override
-    public void connection() {
-
-
-    }
-
-    /**
-     * 断开连接
-     */
-    @Override
-    public void disConnection() {
+    public void loadConfig(){
 
     }
 }

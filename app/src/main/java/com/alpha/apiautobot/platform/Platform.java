@@ -4,6 +4,12 @@ package com.alpha.apiautobot.platform;
  * Created by Theo on 2018/5/16.
  */
 public interface Platform {
+
+    /**
+     * 加载配置
+     */
+    public void loadConfig();
+
     /**
      * 连接
      */
