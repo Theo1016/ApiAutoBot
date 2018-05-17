@@ -11,6 +11,11 @@ public interface Platform {
     public void loadConfig();
 
     /**
+     * 初始化restful请求方式
+     */
+    public void initRestful();
+
+    /**
      * 连接
      */
     public void connection();

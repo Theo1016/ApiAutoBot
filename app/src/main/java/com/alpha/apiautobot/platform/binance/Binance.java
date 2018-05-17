@@ -7,6 +7,14 @@ import com.alpha.apiautobot.platform.AbstractPlatform;
  */
 public class Binance extends AbstractPlatform {
 
+    public String BASE_URL="https://api.binance.com";
+
+
+    @Override
+    public void initRestful() {
+
+    }
+
     @Override
     public void connection() {
 
