@@ -16,52 +16,34 @@ import java.util.concurrent.TimeUnit;
  * Created by Theo
  */
 public final class ApiClient {
+    public static ApiService service;
     private ApiClient() {
     }
         public static String BASE_URL = "";
     public static Context context;
 
-    public static ApiService service = new Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(genericClient())
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .build()
-            .create(ApiService.class);
-
     public static void setContext(Context ctx) {
         context = ctx;
     }
 
-    public static void reCreateApiService(String url){
+    public static void CreateApiService(String url,OkHttpClient okHttpClient){
+        BASE_URL = url;
         service = new Retrofit.Builder()
                 .baseUrl(url)
-                .client(genericClient())
+                .client(okHttpClient)
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .build()
                 .create(ApiService.class);
-        BASE_URL = url;
     }
 
-    public static OkHttpClient genericClient() {
+    public static OkHttpClient genericClient(Interceptor interceptor) {
         OkHttpClient httpClient = new OkHttpClient.Builder()
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .readTimeout(20, TimeUnit.SECONDS)
                 .retryOnConnectionFailure(true)
-                .addInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        Request request = chain.request()
-                                .newBuilder()
-                                .addHeader("Accept", "*/*")
-                                .addHeader("Content-Type", "application/x-www-form-urlencoded")
-                                .addHeader("Accept-Encoding", "gzip, deflate")
-                                .addHeader("Connection", "keep-alive")
-                                .build();
-                        return chain.proceed(request);
-                    }
-
-                })
+                .addInterceptor(interceptor)
                 .build();
         return httpClient;
     }
+
 }
