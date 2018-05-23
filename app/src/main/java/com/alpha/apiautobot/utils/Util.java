@@ -11,21 +11,14 @@ import java.security.NoSuchAlgorithmException;
  */
 public class Util {
 
-    public static String HMAC(String signatureStr, String secret) {
-        Mac sha256_HMAC = null;
+    public static String sign(String message, String secret) {
         try {
-            sha256_HMAC = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secretKeySpec = null;
-            secretKeySpec = new SecretKeySpec(secret.getBytes("UTF-8"), "HmacSHA256");
+            Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
             sha256_HMAC.init(secretKeySpec);
-            return sha256_HMAC.doFinal(signatureStr.getBytes("UTF-8")).toString();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            return new String(Hex.encodeHex(sha256_HMAC.doFinal(message.getBytes())));
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to sign message.", e);
         }
-        return null;
     }
 }

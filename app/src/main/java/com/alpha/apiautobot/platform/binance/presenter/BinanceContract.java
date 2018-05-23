@@ -1,5 +1,6 @@
 package com.alpha.apiautobot.platform.binance.presenter;
 
+import com.alpha.apiautobot.domain.request.NewOrder;
 import retrofit2.http.Query;
 
 /**
@@ -19,10 +20,7 @@ public class BinanceContract {
 
         public void historicalTrades(String symobl,int limit,long fromId);
 
-        public void orderTest(String symobl,Enum side,Enum type,Enum timeInForce,
-                              double quantity,double price,String newClientOrderId,
-                              double stopPrice,double icebergQty,Enum newOrderRespType,
-                              long recvWindow,@Query("timestamp")long timestamp);
+        public void orderTest(NewOrder order);
     }
     public interface View{
         public void pingCallback();

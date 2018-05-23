@@ -1,13 +1,10 @@
 package com.alpha.apiautobot.platform.binance;
 
-import com.alpha.apiautobot.base.rest.side;
-import com.alpha.apiautobot.base.rest.timeInForce;
-import com.alpha.apiautobot.base.rest.type;
+import com.alpha.apiautobot.domain.request.NewOrder;
+import com.alpha.apiautobot.domain.request.binance.TimeInForce;
 import com.alpha.apiautobot.platform.AbstractPlatform;
 import com.alpha.apiautobot.platform.binance.presenter.BinanceContract;
 import com.alpha.apiautobot.platform.binance.presenter.BinancePresenter;
-
-import java.util.Date;
 
 
 /**
@@ -15,18 +12,15 @@ import java.util.Date;
  */
 public class Binance extends AbstractPlatform implements BinanceContract.View {
 
-    public String BASE_URL="https://api.binance.com";
-
     BinancePresenter mPingPresenter;
 
     @Override
     public void initRestful() {
-        mPingPresenter = new BinancePresenter(BASE_URL,this);
+        mPingPresenter = new BinancePresenter(this);
 //        mPingPresenter.depth("ETHBTC",100);
 //        mPingPresenter.trades("ETHBTC",100);
 //        mPingPresenter.historicalTrades("ETHBTC",100,0);
-        mPingPresenter.orderTest("ETHBTC", side.BUY, type.LIMIT, timeInForce.GTC,1,
-                0.01,"28",0.02,1,null,5000,new Date().getTime());
+        mPingPresenter.orderTest(NewOrder.limitBuy("BNBBTC", TimeInForce.GTC, "1000", "0.0001"));
     }
 
     @Override
