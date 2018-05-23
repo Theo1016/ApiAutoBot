@@ -62,7 +62,7 @@ public class HuobiPro extends AbstractPlatform {
      * @param params
      * @return
      */
-    public String toQueryString(Map<String, String> params) {
+    public static String toQueryString(Map<String, String> params) {
         StringBuilder builder = new StringBuilder();
         for (Map.Entry<String, String> entry : params.entrySet()) {
             builder.append(entry.getKey()).append("=").append(ApiSignature.urlEncode(entry.getValue()))
