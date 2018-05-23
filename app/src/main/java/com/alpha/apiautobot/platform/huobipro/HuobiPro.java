@@ -16,6 +16,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -124,16 +126,14 @@ public class HuobiPro extends AbstractPlatform {
      * @param callback
      */
     public void getSymbols(Callback<HRSymbols> callback) {
-        Call<HRSymbols> call = apiService.getCommonSymbols();
-        call.enqueue(callback);
+        get("getCommonSymbols",callback);
     }
 
     /**
      * 获取火币所有账户信息
      */
     public void getAccount(Callback<HRAccounts> callback) {
-        Call<HRAccounts> call = apiService.getAccount();
-        call.enqueue(callback);
+        get("getAccount", callback);
     }
 
     /**
@@ -141,8 +141,9 @@ public class HuobiPro extends AbstractPlatform {
      * @param accountId
      */
     public void getBalance(int accountId, Callback<String> callback) {
-        Call<String> call1 = apiService.getBalanceByAccountId(accountId);
-        call1.enqueue(callback);
+        get("getBalanceByAccountId", new Class[]{int.class},
+                new Object[]{accountId},
+                callback);
     }
 
     /**
@@ -150,6 +151,42 @@ public class HuobiPro extends AbstractPlatform {
      * @param callback
      */
     public void getCoins(Callback<HRCoins> callback) {
-        apiService.getCurrencys().enqueue(callback);
+        get("getCurrencys", callback);
+    }
+
+    /**
+     * 使用通用的反射实现接口调用
+     * @param method
+     * @param parameterTypes
+     * @param objects
+     * @param callback
+     * @param <T>
+     */
+    public <T> void get(String method, Class[] parameterTypes, Object[] objects, Callback<T> callback) {
+        // 使用反射
+        Method m = null;
+        try {
+            m = apiService.getClass().getDeclaredMethod(method, parameterTypes);
+            Call<T> call = (Call<T>) m.invoke(apiService, objects);
+            call.enqueue(callback);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public <T> void get(String method, Callback<T> callback) {
+        get(method, null, null, callback);
+    }
+
+    public <T> void get(String method, Class[] parameterTypes,Callback<T> callback) {
+        get(method, parameterTypes, null, callback);
+    }
+
+    public <T> void get(String method, Object[] objects, Callback<T> callback) {
+        get(method, null, objects, callback);
     }
 }
