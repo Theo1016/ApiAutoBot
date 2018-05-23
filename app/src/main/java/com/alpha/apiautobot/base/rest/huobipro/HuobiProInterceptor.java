@@ -20,35 +20,25 @@ public class HuobiProInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request original = chain.request();
-        HttpUrl httpUrl = original.url();
-        String host = httpUrl.host();
-        String path = httpUrl.encodedPath();
-        String method = original.method();
-        //构造参数
-        HashMap<String, String> params = new HashMap<>();
-        String query = httpUrl.query();
-        String[] querys = query.split("&");
-        for (String key_value : querys) {
-            String[] keys = key_value.split("=");
-            String key = keys[0];
-            String value = keys[1];
-            params.put(key, value);
+        String api_type = original.header("API-TYPE");
+        HttpUrl newUrl = null;
+        if(api_type != null && api_type.equals("User")) {
+            //个人账户接口需进行参数加密
+            newUrl = new ApiSignature().createSignatureUrl(chain.request());
+        }else if (api_type != null && api_type.equals("Common")){
+            //公共接口添加访问密钥
+            newUrl = original.url().newBuilder().addQueryParameter("AccessKeyId", HuobiPro.ACCESS_KEY).build();
+        }else {
+            newUrl = null;
         }
-
-        //对请求方法、host、path，参数签名
-        ApiSignature signature = new ApiSignature();
-        signature.createSignature(HuobiPro.ACCESS_KEY, HuobiPro.SECRET_KEY, method, host, path, params);
-        String url = "https://" + host + path + "?" + HuobiPro.toQueryString(params);
-        HttpUrl newUrl = HttpUrl.parse(url);
-
         Request request = original.newBuilder()
                 .addHeader("User-Agent",
                         "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36")
                 .addHeader("Accept-Language", "zh-cn")
-                .addHeader("Content-Type", "application/x-www-form-urlencoded")
-                .url(newUrl)
+                .addHeader("Content-Type", original.method().toUpperCase().equals("GET") ? "application/x-www-form-urlencoded" : "application/json")
+                .url(newUrl==null ? original.url() : newUrl)
                 .build();
-
+        Log.d("HuobiProInterceptor", request.toString());
         return chain.proceed(request);
     }
 }
