@@ -9,5 +9,9 @@ public class Config {
 
     public static String BINANCE_SECRET="nnDGgPXfxOx3UHbJLdMoRw5imIQ3Fr3Ye5XOBNyuF6uFvyWitFKHqNjxlQsKT8qH";
 
+    public static String KUCOIN_API_KEY="5b06611009e5a11fdefcd15a";
+
+    public static String KUCOIN_SECRET="03c0552d-6b3a-46e7-830b-00a050d80239";
+
 
 }

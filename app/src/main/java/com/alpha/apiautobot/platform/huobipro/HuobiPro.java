@@ -1,10 +1,5 @@
 package com.alpha.apiautobot.platform.huobipro;
 
-import android.util.Log;
-
-import com.alpha.apiautobot.base.rest.ApiClient;
-import com.alpha.apiautobot.base.rest.ApiService;
-import com.alpha.apiautobot.base.rest.BinanceInterceptor;
 import com.alpha.apiautobot.base.rest.huobipro.HuobiApiService;
 import com.alpha.apiautobot.base.rest.huobipro.HuobiProInterceptor;
 import com.alpha.apiautobot.domain.request.huobipro.PlaceOrders;
