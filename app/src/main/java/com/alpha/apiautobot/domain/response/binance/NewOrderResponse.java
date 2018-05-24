@@ -1,17 +1,22 @@
-package com.alpha.apiautobot.domain.response;
+package com.alpha.apiautobot.domain.response.binance;
+
 
 import com.alpha.apiautobot.domain.request.binance.OrderSide;
 import com.alpha.apiautobot.domain.request.binance.OrderType;
 import com.alpha.apiautobot.domain.request.binance.TimeInForce;
-import com.alpha.apiautobot.domain.response.binance.OrderStatus;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * Trade order information.
+ * Response returned when placing a new order on the system.
+ *
+ * @see NewOrder for the request
  */
-public class Order {
+public class NewOrderResponse {
 
   /**
-   * Symbol that the order was put on.
+   * Order symbol.
    */
   private String symbol;
 
@@ -21,59 +26,31 @@ public class Order {
   private Long orderId;
 
   /**
-   * Client order id.
+   * This will be either a generated one, or the newClientOrderId parameter
+   * which was passed when creating the new order.
    */
   private String clientOrderId;
 
-  /**
-   * Price.
-   */
   private String price;
 
-  /**
-   * Original quantity.
-   */
   private String origQty;
 
-  /**
-   * Original quantity.
-   */
   private String executedQty;
 
-  /**
-   * Order status.
-   */
   private OrderStatus status;
 
-  /**
-   * Time in force to indicate how long will the order remain active.
-   */
   private TimeInForce timeInForce;
 
-  /**
-   * Type of order.
-   */
   private OrderType type;
 
-  /**
-   * Buy/Sell order side.
-   */
   private OrderSide side;
 
-  /**
-   * Used with stop orders.
-   */
-  private String stopPrice;
+  private List<Trade> fills;
 
   /**
-   * Used with iceberg orders.
+   * Transact time for this order.
    */
-  private String icebergQty;
-
-  /**
-   * Order timestamp.
-   */
-  private long time;
+  private Long transactTime;
 
   public String getSymbol() {
     return symbol;
@@ -97,6 +74,14 @@ public class Order {
 
   public void setClientOrderId(String clientOrderId) {
     this.clientOrderId = clientOrderId;
+  }
+
+  public Long getTransactTime() {
+    return transactTime;
+  }
+
+  public void setTransactTime(Long transactTime) {
+    this.transactTime = transactTime;
   }
 
   public String getPrice() {
@@ -155,29 +140,12 @@ public class Order {
     this.side = side;
   }
 
-  public String getStopPrice() {
-    return stopPrice;
+  public List<Trade> getFills() {
+    return fills;
   }
 
-  public void setStopPrice(String stopPrice) {
-    this.stopPrice = stopPrice;
+  public void setFills(List<Trade> fills) {
+    this.fills = fills;
   }
-
-  public String getIcebergQty() {
-    return icebergQty;
-  }
-
-  public void setIcebergQty(String icebergQty) {
-    this.icebergQty = icebergQty;
-  }
-
-  public long getTime() {
-    return time;
-  }
-
-  public void setTime(long time) {
-    this.time = time;
-  }
-
 
 }

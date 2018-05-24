@@ -1,24 +1,16 @@
 package com.alpha.apiautobot.platform.huobipro;
 
-import android.util.Log;
-
-import com.alpha.apiautobot.base.rest.ApiClient;
-import com.alpha.apiautobot.base.rest.ApiService;
-import com.alpha.apiautobot.base.rest.BinanceInterceptor;
 import com.alpha.apiautobot.base.rest.huobipro.HuobiApiService;
 import com.alpha.apiautobot.base.rest.huobipro.HuobiProInterceptor;
 import com.alpha.apiautobot.platform.AbstractPlatform;
 import com.alpha.apiautobot.utils.ApiSignature;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Retrofit;

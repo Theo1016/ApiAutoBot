@@ -1,26 +1,31 @@
-package com.alpha.apiautobot.platform.binance;
+package com.alpha.apiautobot.platform.kucoin;
 
 import com.alpha.apiautobot.domain.request.NewOrder;
 import com.alpha.apiautobot.domain.request.binance.TimeInForce;
 import com.alpha.apiautobot.platform.AbstractPlatform;
 import com.alpha.apiautobot.platform.binance.presenter.BinanceContract;
 import com.alpha.apiautobot.platform.binance.presenter.BinancePresenter;
+import com.alpha.apiautobot.platform.kucoin.presenter.KuCoinContract;
+import com.alpha.apiautobot.platform.kucoin.presenter.KuCoinPresenter;
 
 
 /**
  * Created by Theo on 2018/5/17.
  */
-public class Binance extends AbstractPlatform implements BinanceContract.View {
+public class KuCoin extends AbstractPlatform implements KuCoinContract.View {
 
-    BinancePresenter mPingPresenter;
+    KuCoinPresenter mKuCoinPresenter;
 
     @Override
     public void initRestful() {
-        mPingPresenter = new BinancePresenter(this);
+        mKuCoinPresenter = new KuCoinPresenter(this);
 //        mPingPresenter.depth("ETHBTC",100);
 //        mPingPresenter.trades("ETHBTC",100);
 //        mPingPresenter.historicalTrades("ETHBTC",100,0);
-       buyCoin();
+//       buyCoin();
+//       mKuCoinPresenter.changeCurrency("USD");
+//        mKuCoinPresenter.getTick("KCS-BTC");
+        mKuCoinPresenter.listActiveOrders("KCS-BTC","BUY");
     }
 
     @Override
@@ -50,7 +55,7 @@ public class Binance extends AbstractPlatform implements BinanceContract.View {
 
     @Override
     public void buyCoin() {
-        mPingPresenter.orderTest(NewOrder.limitBuy("BNBBTC", TimeInForce.GTC, "1000", "0.0001"));
+        mKuCoinPresenter.orderTest(NewOrder.limitBuy("BNBBTC", TimeInForce.GTC, "1000", "0.0001"));
     }
 
     @Override
