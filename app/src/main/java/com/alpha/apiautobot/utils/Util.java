@@ -79,7 +79,7 @@ public class Util {
             //splice string for signing
             String strForSign = endpoint + "/" +nonce + "/" + queryString;
             //Make a base64 encoding of the completed string
-            String signatureStr = Base64.encodeToString(strForSign.getBytes("UTF-8"), 0);
+            String signatureStr = Base64.encodeToString(strForSign.getBytes("UTF-8"), 2);
             Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
 
             SecretKeySpec secretKeySpec = null;

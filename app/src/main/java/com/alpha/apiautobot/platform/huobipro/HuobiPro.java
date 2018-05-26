@@ -88,18 +88,15 @@ public class HuobiPro extends AbstractPlatform {
     }
 
     @Override
-    public Object getMarketList() {
-        return null;
+    public void getMarketList() {
     }
 
     @Override
-    public Object getTick() {
-        return null;
+    public void getTick() {
     }
 
     @Override
-    public Object getAccountInfo() {
-        return null;
+    public void getAccountInfo() {
     }
 
     @Override

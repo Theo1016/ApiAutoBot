@@ -1,7 +1,5 @@
 package com.alpha.apiautobot.base.rest.kucoin;
 
-import android.text.TextUtils;
-import com.alpha.apiautobot.platform.binance.BinanceApiConstants;
 import com.alpha.apiautobot.platform.kucoin.KuCoinApiConstants;
 import com.alpha.apiautobot.utils.Util;
 import okhttp3.HttpUrl;

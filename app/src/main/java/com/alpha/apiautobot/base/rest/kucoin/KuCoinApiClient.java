@@ -2,7 +2,8 @@ package com.alpha.apiautobot.base.rest.kucoin;
 
 
 import android.content.Context;
-import com.alpha.apiautobot.base.rest.binance.BinanceApiService;
+import com.alpha.apiautobot.base.rest.CustomGsonConverterFactory;
+import com.google.gson.GsonBuilder;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
@@ -30,6 +31,8 @@ public final class KuCoinApiClient {
                 .baseUrl(url)
                 .client(okHttpClient)
                 .addConverterFactory(ScalarsConverterFactory.create())
+                .addConverterFactory(CustomGsonConverterFactory.create(new GsonBuilder()
+                        .create()))
                 .build()
                 .create(KuCoinApiService.class);
     }
