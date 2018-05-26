@@ -13,6 +13,7 @@ import com.alpha.apiautobot.domain.response.huobipro.HRAccounts;
 import com.alpha.apiautobot.domain.response.huobipro.HRCoins;
 import com.alpha.apiautobot.domain.response.huobipro.HRSymbols;
 import com.alpha.apiautobot.domain.response.huobipro.PlaceOrdersResponse;
+import com.alpha.apiautobot.domain.response.okex.Ticker;
 import com.alpha.apiautobot.domain.response.okex.UserInfo;
 import com.alpha.apiautobot.platform.huobipro.HuobiPro;
 import com.alpha.apiautobot.platform.okex.OKExClient;
@@ -29,6 +30,7 @@ import java.util.Map;
 import butterknife.BindView;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -116,21 +118,33 @@ public class TestActivity extends AppCompatActivity {
 //        } catch (JSONException e) {
 //            e.printStackTrace();
 //        }
-        okExClient.apiService.getUserInfo().enqueue(new Callback<UserInfo>() {
+        okExClient.apiService.getUserInfo().enqueue(new Callback<String>() {
             @Override
-            public void onResponse(Call<UserInfo> call, Response<UserInfo> response) {
+            public void onResponse(Call<String> call, Response<String> response) {
                 if(response.isSuccessful()) {
-                    Log.e("TEST", new Gson().toJson(response.body()));
+                    Log.e("TEST", /*new Gson().toJson(*/response.body().toString()/*)*/);
                 }else {
 
                 }
             }
 
             @Override
-            public void onFailure(Call<UserInfo> call, Throwable t) {
+            public void onFailure(Call<String> call, Throwable t) {
                 Log.e("TEST", t.getMessage());
             }
         });
+        okExClient.apiService.getTicker("btc_usdt")
+                .enqueue(new Callback<Ticker>() {
+                    @Override
+                    public void onResponse(Call<Ticker> call, Response<Ticker> response) {
+                        Log.e("TEST", new Gson().toJson(response.body()));
+                    }
+
+                    @Override
+                    public void onFailure(Call<Ticker> call, Throwable t) {
+
+                    }
+                });
     }
 
     private void placeOrders(HRAccounts.DataBean dataBean) {

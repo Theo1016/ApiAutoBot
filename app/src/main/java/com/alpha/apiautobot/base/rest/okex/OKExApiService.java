@@ -8,6 +8,7 @@ import com.alpha.apiautobot.domain.response.okex.UserInfo;
 import java.util.List;
 
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -87,5 +88,5 @@ public interface OKExApiService {
      */
     @Headers("SIGNED:true")
     @POST("/api/v1/userinfo.do")
-    Call<UserInfo> getUserInfo();
+    Call<String> getUserInfo();
 }

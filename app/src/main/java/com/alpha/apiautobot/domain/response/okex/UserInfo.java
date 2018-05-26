@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.util.Map;
 
 public class UserInfo implements Serializable {
 
@@ -53,25 +54,49 @@ public class UserInfo implements Serializable {
              * freezed : {"btc":"0","usd":"0","ltc":"0","eth":"0"}
              */
 
-            JSONObject borrow;
-            private JSONObject free;
-            private JSONObject freezed;
+            private Map<String, Object> borrow;
+            private Map<String, Object> free;
+            private Map<String, Object> freezed;
+//
+//            public Map<String, String> getBorrow() {
+//                return borrow;
+//            }
+//
+//            public void setBorrow(Map<String, String> borrow) {
+//                this.borrow = borrow;
+//            }
+//
+//            public Map<String, String> getFree() {
+//                return free;
+//            }
+//
+//            public void setFree(Map<String, String> free) {
+//                this.free = free;
+//            }
+//
+//            public Map<String, String> getFreezed() {
+//                return freezed;
+//            }
+//
+//            public void setFreezed(Map<String, String> freezed) {
+//                this.freezed = freezed;
+//            }
 
-            public JSONObject getFree() {
-                return free;
-            }
-
-            public void setFree(JSONObject free) {
-                this.free = free;
-            }
-
-            public JSONObject getFreezed() {
-                return freezed;
-            }
-
-            public void setFreezed(JSONObject freezed) {
-                this.freezed = freezed;
-            }
+            //            public JSONObject getFree() {
+//                return free;
+//            }
+//
+//            public void setFree(JSONObject free) {
+//                this.free = free;
+//            }
+//
+//            public JSONObject getFreezed() {
+//                return freezed;
+//            }
+//
+//            public void setFreezed(JSONObject freezed) {
+//                this.freezed = freezed;
+//            }
 
         }
     }

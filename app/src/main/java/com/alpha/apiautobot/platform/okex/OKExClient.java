@@ -3,12 +3,12 @@ package com.alpha.apiautobot.platform.okex;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.alpha.apiautobot.base.rest.huobipro.HuobiApiService;
-import com.alpha.apiautobot.base.rest.huobipro.HuobiProInterceptor;
+import com.alpha.apiautobot.base.rest.CustomGsonConverterFactory;
 import com.alpha.apiautobot.base.rest.okex.OKExApiService;
 import com.alpha.apiautobot.platform.AbstractPlatform;
 import com.alpha.apiautobot.platform.binance.BinanceApiConstants;
 import com.alpha.apiautobot.utils.Util;
+import com.google.gson.GsonBuilder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +27,7 @@ import okhttp3.Response;
 import okio.Buffer;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class OKExClient extends AbstractPlatform {
 
@@ -128,10 +129,16 @@ public class OKExClient extends AbstractPlatform {
                         }
 
                         // Build new request after adding the necessary authentication information
-                        Request newRequest = newRequestBuilder.build();
+                        Request newRequest = newRequestBuilder
+                                .addHeader("User-Agent",
+                                "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36")
+                                .addHeader("Accept-Language", "zh-cn")
+                                .addHeader("Content-Type", original.method().toUpperCase().equals("GET") ? "application/x-www-form-urlencoded" : "application/json")
+                                .build();
                         return chain.proceed(newRequest);
                     }
                 }))
+                .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(OKExApiService.class);
@@ -148,18 +155,17 @@ public class OKExClient extends AbstractPlatform {
     }
 
     @Override
-    public Object getMarketList() {
-        return null;
+    public void getMarketList() {
+
     }
 
     @Override
-    public Object getTick() {
-        return null;
+    public void getTick() {
+
     }
 
     @Override
-    public Object getAccountInfo() {
-        return null;
+    public void getAccountInfo() {
     }
 
     @Override
