@@ -14,7 +14,7 @@ import java.util.ArrayList;
  *     author : hedong
  *     e-mail : 739814501@qq.com
  *     time   : 2018/05/23
- *     desc   : xxxx描述
+ *     desc   : 火币交易对及精度
  *     version: 1.0
  * </pre>
  */

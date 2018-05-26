@@ -13,15 +13,22 @@ import com.alpha.apiautobot.domain.response.huobipro.HRAccounts;
 import com.alpha.apiautobot.domain.response.huobipro.HRCoins;
 import com.alpha.apiautobot.domain.response.huobipro.HRSymbols;
 import com.alpha.apiautobot.domain.response.huobipro.PlaceOrdersResponse;
+import com.alpha.apiautobot.domain.response.okex.UserInfo;
 import com.alpha.apiautobot.platform.huobipro.HuobiPro;
+import com.alpha.apiautobot.platform.okex.OKExClient;
 import com.alpha.apiautobot.utils.ApiSignature;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import butterknife.BindView;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -35,7 +42,7 @@ public class TestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
 
-        HuobiPro huobiPro = new HuobiPro();
+//        HuobiPro huobiPro = new HuobiPro();
 //        huobiPro.getSymbols(new Callback<HRSymbols>() {
 //            @Override
 //            public void onResponse(Call<HRSymbols> call, Response<HRSymbols> response) {
@@ -53,27 +60,27 @@ public class TestActivity extends AppCompatActivity {
 //        });
 
         //获取账户信息
-        huobiPro.getAccount(new Callback<HRAccounts>() {
-            @Override
-            public void onResponse(Call<HRAccounts> call, retrofit2.Response<HRAccounts> response) {
-                //获取币币交易账户
-                HRAccounts.DataBean spot = null;
-                for(HRAccounts.DataBean  dataBean : response.body().data) {
-                    if(dataBean.type.equals("spot")) {
-                        spot = dataBean;
-                    }
-                }
-                if(spot != null) {
-                    //下单
-                    placeOrders(spot);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<HRAccounts> call, Throwable t) {
-                Log.e("TEST", t.getMessage().toString());
-            }
-        });
+//        huobiPro.getAccount(new Callback<HRAccounts>() {
+//            @Override
+//            public void onResponse(Call<HRAccounts> call, retrofit2.Response<HRAccounts> response) {
+//                //获取币币交易账户
+//                HRAccounts.DataBean spot = null;
+//                for(HRAccounts.DataBean  dataBean : response.body().data) {
+//                    if(dataBean.type.equals("spot")) {
+//                        spot = dataBean;
+//                    }
+//                }
+//                if(spot != null) {
+//                    //下单
+//                    placeOrders(spot);
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<HRAccounts> call, Throwable t) {
+//                Log.e("TEST", t.getMessage().toString());
+//            }
+//        });
         //获取指定账户余额
 //        huobiPro.getBalance(3593716, new Callback<AccountBalance>() {
 //            @Override
@@ -99,6 +106,31 @@ public class TestActivity extends AppCompatActivity {
 //
 //            }
 //        });
+
+        OKExClient okExClient = new OKExClient();
+//        JSONObject jsonObject = new JSONObject();
+//        RequestBody requestBody = null;
+//        try {
+//            jsonObject.put("api_key", "xxxxx");
+//            requestBody = RequestBody.create(MediaType.parse("application/json"), jsonObject.toString());
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+        okExClient.apiService.getUserInfo().enqueue(new Callback<UserInfo>() {
+            @Override
+            public void onResponse(Call<UserInfo> call, Response<UserInfo> response) {
+                if(response.isSuccessful()) {
+                    Log.e("TEST", new Gson().toJson(response.body()));
+                }else {
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserInfo> call, Throwable t) {
+                Log.e("TEST", t.getMessage());
+            }
+        });
     }
 
     private void placeOrders(HRAccounts.DataBean dataBean) {

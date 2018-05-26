@@ -6,6 +6,10 @@ import com.alpha.apiautobot.base.Config;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -92,5 +96,40 @@ public class Util {
         return null;
     }
 
+    /**
+     * OKEX MD5加密
+     * @param queryString
+     * @return
+     */
+    public static String okexSign(String queryString) {
+        String result = "";
+        try {
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            md5.update((queryString).getBytes("UTF-8"));
+            byte b[] = md5.digest();
+
+            int i;
+            StringBuffer buf = new StringBuffer("");
+
+            for(int offset=0; offset<b.length; offset++){
+                i = b[offset];
+                if(i<0){
+                    i+=256;
+                }
+                if(i<16){
+                    buf.append("0");
+                }
+                buf.append(Integer.toHexString(i));
+            }
+
+            result = buf.toString().toUpperCase();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
 
 }
