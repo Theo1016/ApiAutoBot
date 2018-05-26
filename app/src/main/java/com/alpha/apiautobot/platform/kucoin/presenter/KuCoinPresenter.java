@@ -1,12 +1,9 @@
 package com.alpha.apiautobot.platform.kucoin.presenter;
 
 import com.alpha.apiautobot.base.Config;
-import com.alpha.apiautobot.base.rest.binance.BinanceApiClient;
 import com.alpha.apiautobot.base.rest.kucoin.KuCoinApiClient;
 import com.alpha.apiautobot.base.rest.kucoin.KuCoinInterceptor;
-import com.alpha.apiautobot.domain.request.NewOrder;
-import com.alpha.apiautobot.domain.response.binance.ExchangeInfo;
-import com.alpha.apiautobot.domain.response.binance.ServerTime;
+import com.alpha.apiautobot.domain.response.kucoin.MarketModel;
 import com.alpha.apiautobot.platform.kucoin.KuCoinApiConstants;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -34,7 +31,7 @@ public class KuCoinPresenter implements KuCoinContract.Presenter {
                 okhttp3.Response res = response.raw();
                 if (res.isSuccessful()) {
                     try {
-                        mKuCoinContractView.pingCallback();
+                        mKuCoinContractView.callback();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -60,7 +57,7 @@ public class KuCoinPresenter implements KuCoinContract.Presenter {
                 okhttp3.Response res = response.raw();
                 if (res.isSuccessful()) {
                     try {
-                        mKuCoinContractView.pingCallback();
+                        mKuCoinContractView.callback();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -86,7 +83,7 @@ public class KuCoinPresenter implements KuCoinContract.Presenter {
                 okhttp3.Response res = response.raw();
                 if (res.isSuccessful()) {
                     try {
-                        mKuCoinContractView.pingCallback();
+                        mKuCoinContractView.callback();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -101,84 +98,18 @@ public class KuCoinPresenter implements KuCoinContract.Presenter {
     }
 
     @Override
-    public void ping() {
-        Call<Void> call = BinanceApiClient.service.ping();
-        call.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                okhttp3.Response res = response.raw();
-                if (res.isSuccessful()) {
-                    try {
-                        mKuCoinContractView.pingCallback();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                t.printStackTrace();
-            }
-        });
-    }
-
-    @Override
-    public void serverTime() {
-        Call<ServerTime> call = BinanceApiClient.service.serverTime();
-        call.enqueue(new Callback<ServerTime>() {
-            @Override
-            public void onResponse(Call<ServerTime> call, Response<ServerTime> response) {
-                okhttp3.Response res = response.raw();
-                if (res.isSuccessful()) {
-                    try {
-                        mKuCoinContractView.serverTimeCallback();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ServerTime> call, Throwable t) {
-                t.printStackTrace();
-            }
-        });
-    }
-
-    @Override
-    public void exchangeInfo() {
-        Call<ExchangeInfo> call = BinanceApiClient.service.exchangeInfo();
-        call.enqueue(new Callback<ExchangeInfo>() {
-            @Override
-            public void onResponse(Call<ExchangeInfo> call, Response<ExchangeInfo> response) {
-                okhttp3.Response res = response.raw();
-                if (res.isSuccessful()) {
-                    try {
-                        mKuCoinContractView.serverTimeCallback();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ExchangeInfo> call, Throwable t) {
-                t.printStackTrace();
-            }
-        });
-    }
-
-    @Override
-    public void depth(String symobl, int limit) {
-        Call<String> call = BinanceApiClient.service.depth(symobl, limit);
+    public void listTradingMarkets() {
+        String payload="";
+        KuCoinApiClient.CreateApiService(KuCoinApiConstants.API_BASE_URL,
+                KuCoinApiClient.genericClient(new KuCoinInterceptor(Config.KUCOIN_API_KEY, Config.KUCOIN_SECRET,"/v1/open/markets",payload)));
+        Call<String> call = KuCoinApiClient.service.listTradingMarkets();
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 okhttp3.Response res = response.raw();
                 if (res.isSuccessful()) {
                     try {
-                        mKuCoinContractView.serverTimeCallback();
+                        mKuCoinContractView.callback();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -193,15 +124,18 @@ public class KuCoinPresenter implements KuCoinContract.Presenter {
     }
 
     @Override
-    public void trades(String symobl, int limit) {
-        Call<String> call = BinanceApiClient.service.trades(symobl, limit);
-        call.enqueue(new Callback<String>() {
+    public void listTradingSymbolsMarkets(String market) {
+        String payload="market="+market;
+        KuCoinApiClient.CreateApiService(KuCoinApiConstants.API_BASE_URL,
+                KuCoinApiClient.genericClient(new KuCoinInterceptor(Config.KUCOIN_API_KEY, Config.KUCOIN_SECRET,"/v1/market/open/symbols",payload)));
+        Call<MarketModel> call = KuCoinApiClient.service.listTradingSymbolsMarkets(market);
+        call.enqueue(new Callback<MarketModel>() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
+            public void onResponse(Call<MarketModel> call, Response<MarketModel> response) {
                 okhttp3.Response res = response.raw();
                 if (res.isSuccessful()) {
                     try {
-                        mKuCoinContractView.serverTimeCallback();
+                        mKuCoinContractView.callback(response.body());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -209,55 +143,7 @@ public class KuCoinPresenter implements KuCoinContract.Presenter {
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                t.printStackTrace();
-            }
-        });
-    }
-
-    @Override
-    public void historicalTrades(String symobl, int limit, long fromId) {
-        Call<String> call = BinanceApiClient.service.historicalTrades(symobl, limit, fromId);
-        call.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                okhttp3.Response res = response.raw();
-                if (res.isSuccessful()) {
-                    try {
-                        mKuCoinContractView.serverTimeCallback();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                t.printStackTrace();
-            }
-        });
-    }
-
-    @Override
-    public void orderTest(NewOrder order) {
-        Call<String> call = BinanceApiClient.service.orderTest(order.getSymbol(), order.getSide(), order.getType(),
-                order.getTimeInForce(), order.getQuantity(), order.getPrice(), order.getNewClientOrderId(), order.getStopPrice(),
-                order.getIcebergQty(), order.getNewOrderRespType(), order.getRecvWindow(), order.getTimestamp());
-        call.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                okhttp3.Response res = response.raw();
-                if (res.isSuccessful()) {
-                    try {
-                        mKuCoinContractView.serverTimeCallback();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
+            public void onFailure(Call<MarketModel> call, Throwable t) {
                 t.printStackTrace();
             }
         });

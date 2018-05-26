@@ -20,7 +20,8 @@ public class Binance extends AbstractPlatform implements BinanceContract.View {
 //        mPingPresenter.depth("ETHBTC",100);
 //        mPingPresenter.trades("ETHBTC",100);
 //        mPingPresenter.historicalTrades("ETHBTC",100,0);
-       buyCoin();
+//       buyCoin();
+        mPingPresenter.exchangeInfo();
     }
 
     @Override
@@ -34,18 +35,15 @@ public class Binance extends AbstractPlatform implements BinanceContract.View {
     }
 
     @Override
-    public Object getMarketList() {
-        return null;
+    public void getMarketList() {
     }
 
     @Override
-    public Object getTick() {
-        return null;
+    public void getTick() {
     }
 
     @Override
-    public Object getAccountInfo() {
-        return null;
+    public void getAccountInfo() {
     }
 
     @Override

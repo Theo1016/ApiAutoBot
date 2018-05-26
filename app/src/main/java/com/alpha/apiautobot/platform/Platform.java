@@ -28,17 +28,17 @@ public interface Platform {
     /**
      * 获取市场行情
      */
-    public Object getMarketList();
+    public void getMarketList();
 
     /**
      * 获取单个币种数据
      */
-    public Object getTick();
+    public void getTick();
 
     /**
      * 获取账号数据
      */
-    public Object getAccountInfo();
+    public void getAccountInfo();
 
     /**
      * 买

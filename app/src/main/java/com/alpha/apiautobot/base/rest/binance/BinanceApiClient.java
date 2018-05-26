@@ -2,7 +2,9 @@ package com.alpha.apiautobot.base.rest.binance;
 
 
 import android.content.Context;
+import com.alpha.apiautobot.base.rest.CustomGsonConverterFactory;
 import com.alpha.apiautobot.base.rest.binance.BinanceApiService;
+import com.google.gson.GsonBuilder;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
@@ -30,6 +32,8 @@ public final class BinanceApiClient {
                 .baseUrl(url)
                 .client(okHttpClient)
                 .addConverterFactory(ScalarsConverterFactory.create())
+                .addConverterFactory(CustomGsonConverterFactory.create(new GsonBuilder()
+                        .create()))
                 .build()
                 .create(BinanceApiService.class);
     }

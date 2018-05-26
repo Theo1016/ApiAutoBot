@@ -10,13 +10,10 @@ import com.alpha.apiautobot.utils.ApiSignature;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-<<<<<<< HEAD
-=======
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
->>>>>>> df585ef787774f6960d4e49b0172ed74427345dd
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -83,18 +80,15 @@ public class HuobiPro extends AbstractPlatform {
     }
 
     @Override
-    public Object getMarketList() {
-        return null;
+    public void getMarketList() {
     }
 
     @Override
-    public Object getTick() {
-        return null;
+    public void getTick() {
     }
 
     @Override
-    public Object getAccountInfo() {
-        return null;
+    public void getAccountInfo() {
     }
 
     @Override
