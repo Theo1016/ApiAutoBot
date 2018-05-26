@@ -44,7 +44,7 @@ public class HRAccounts {
          */
 
         @SerializedName("id")
-        public int id;
+        public int accountId;
         @SerializedName("type")
         public String type;
         @SerializedName("state")

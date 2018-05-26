@@ -2,11 +2,15 @@ package com.alpha.apiautobot.platform.huobipro;
 
 import com.alpha.apiautobot.base.rest.huobipro.HuobiApiService;
 import com.alpha.apiautobot.base.rest.huobipro.HuobiProInterceptor;
+import com.alpha.apiautobot.domain.request.huobipro.PlaceOrders;
+import com.alpha.apiautobot.domain.response.huobipro.AccountBalance;
 import com.alpha.apiautobot.domain.response.huobipro.HRAccounts;
 import com.alpha.apiautobot.domain.response.huobipro.HRCoins;
 import com.alpha.apiautobot.domain.response.huobipro.HRSymbols;
+import com.alpha.apiautobot.domain.response.huobipro.PlaceOrdersResponse;
 import com.alpha.apiautobot.platform.AbstractPlatform;
 import com.alpha.apiautobot.utils.ApiSignature;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -19,7 +23,11 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
@@ -130,7 +138,7 @@ public class HuobiPro extends AbstractPlatform {
      * 获取指定账户的余额
      * @param accountId
      */
-    public void getBalance(int accountId, Callback<String> callback) {
+    public void getBalance(int accountId, Callback<AccountBalance> callback) {
         get("getBalanceByAccountId", new Class[]{int.class},
                 new Object[]{accountId},
                 callback);
@@ -143,6 +151,19 @@ public class HuobiPro extends AbstractPlatform {
     public void getCoins(Callback<HRCoins> callback) {
         get("getCurrencys", callback);
     }
+
+    /**
+     * 下单
+     * @param placeOrders
+     * @param callback
+     */
+    public void postOrdersPlace(PlaceOrders placeOrders, Callback<PlaceOrdersResponse> callback) {
+        String json = new Gson().toJson(placeOrders);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), json);
+        apiService.postOrdersPlace(requestBody)
+                .enqueue(callback);
+    }
+
 
     /**
      * 使用通用的反射实现接口调用

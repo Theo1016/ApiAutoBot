@@ -25,7 +25,7 @@ public class HuobiProInterceptor implements Interceptor {
         if(api_type != null && api_type.equals("User")) {
             //个人账户接口需进行参数加密
             newUrl = new ApiSignature().createSignatureUrl(chain.request());
-        }else if (api_type != null && api_type.equals("Common")){
+        }else if (api_type == null || api_type.equals("Common")){
             //公共接口添加访问密钥
             newUrl = original.url().newBuilder().addQueryParameter("AccessKeyId", HuobiPro.ACCESS_KEY).build();
         }else {
