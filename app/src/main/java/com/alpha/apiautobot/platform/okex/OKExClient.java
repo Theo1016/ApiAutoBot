@@ -14,9 +14,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
@@ -28,6 +33,7 @@ import okio.Buffer;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
+import retrofit2.http.FormUrlEncoded;
 
 public class OKExClient extends AbstractPlatform {
 
@@ -69,36 +75,42 @@ public class OKExClient extends AbstractPlatform {
                         boolean isSignatureRequired = original.header(BinanceApiConstants.ENDPOINT_SECURITY_TYPE_SIGNED) != null;
                         newRequestBuilder.removeHeader(BinanceApiConstants.ENDPOINT_SECURITY_TYPE_APIKEY)
                                 .removeHeader(BinanceApiConstants.ENDPOINT_SECURITY_TYPE_SIGNED);
-
-                        HttpUrl url = null;
                         String method = original.method();
                         // Endpoint requires sending a valid API-KEY
-                        if (isApiKeyRequired || isSignatureRequired) {
-                            if("GET".equals(method)) {
-                                url = original.url().newBuilder().addQueryParameter("api_key", ACCESS_KEY).build();
-                            }
-                        }
+//                        if (isApiKeyRequired || isSignatureRequired) {
+//                            if("GET".equals(method)) {
+//                                url = original.url().newBuilder().addQueryParameter("api_key", ACCESS_KEY).build();
+//                            }
+//                        }
 
+                        //POST默认需要签名
+                        isSignatureRequired = isSignatureRequired || method.equals("POST");
                         // Endpoint requires signing the payload
                         if (isSignatureRequired) {
-                            if(url != null && "GET".equals(method)) {
-                                String payload = url.query();
+                            if("GET".equals(method)) {
+                                String payload = original.url().query();
                                 if (!TextUtils.isEmpty(payload)) {
                                     payload += "&";
                                 }else {
                                     payload = "";
                                 }
-                                payload += "secret_key=" + SECRET_KEY;
-                                String signature = Util.okexSign(payload);
-                                HttpUrl signedUrl = url.newBuilder().addQueryParameter("sign", signature).build();
+                                //参数添加私钥
+                                payload += "api_key=" + ACCESS_KEY
+                                        + "&" + "secret_key=" + SECRET_KEY;
+                                //参数加密
+                                String signature = Util.getMD5String(payload);
+                                //构造新url
+                                HttpUrl signedUrl = original.url().newBuilder()
+                                        .addQueryParameter("api_key", ACCESS_KEY)
+                                        .addQueryParameter("sign", signature).build();
                                 newRequestBuilder.url(signedUrl);
                             }else if("POST".equals(method)) {
                                 //重造requestbody
-                                RequestBody requestBody = original.body();
+                                //1. 对参数签名 2. 使用Form表单提交
                                 String body = "";
-                                if (requestBody != null) {
+                                if (original.body() != null) {
                                     Buffer buffer = new Buffer();
-                                    requestBody.writeTo(buffer);
+                                    original.body().writeTo(buffer);
                                     body = buffer.readUtf8();
                                 }
                                 if(TextUtils.isEmpty(body)) {
@@ -107,20 +119,30 @@ public class OKExClient extends AbstractPlatform {
                                 try {
                                     JSONObject jsonObject = new JSONObject(body);
                                     jsonObject.put("api_key", ACCESS_KEY);
-                                    jsonObject.put("secret_key", SECRET_KEY);
-
-                                    StringBuilder builder = new StringBuilder();
+                                    //构造参数
                                     Iterator<String> iterator = jsonObject.keys();
+                                    List<String> params = new ArrayList<>();
+                                    FormBody.Builder formBuilder = new FormBody.Builder();
                                     while (iterator.hasNext()) {
                                         String key = iterator.next();
-                                        builder.append(key).append("=").append(jsonObject.getString(key))
-                                                .append("&");
+                                        String value = jsonObject.getString(key);
+                                        String key_value = key + "=" + value;
+                                        params.add(key_value);
+                                        formBuilder.addEncoded(key, value);
                                     }
-                                    builder.replace(builder.length()-1, builder.length(), "");
-                                    String signature = Util.okexSign(builder.toString());
-                                    jsonObject.put("sign", signature);
-                                    jsonObject.remove("secret_key");
-                                    newRequestBuilder.post(RequestBody.create(MediaType.parse("application/json"), jsonObject.toString()));
+
+                                    //对参数排序
+                                    Collections.sort(params);
+                                    StringBuilder builder = new StringBuilder();
+                                    for (String param : params) {
+                                        builder.append(param).append("&");
+                                    }
+                                    //参数加入私钥
+                                    builder.append("secret_key").append("=").append(SECRET_KEY);
+                                    //参数签名
+                                    String signature = Util.getMD5String(builder.toString());
+                                    formBuilder.addEncoded("sign", signature);
+                                    newRequestBuilder.method(original.method(), formBuilder.build());
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -133,8 +155,8 @@ public class OKExClient extends AbstractPlatform {
                                 .addHeader("User-Agent",
                                 "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36")
                                 .addHeader("Accept-Language", "zh-cn")
-                                .addHeader("Content-Type", original.method().toUpperCase().equals("GET") ? "application/x-www-form-urlencoded" : "application/json")
-                                .build();
+                                .addHeader("Content-Type", "application/x-www-form-urlencoded")
+                                        .build();
                         return chain.proceed(newRequest);
                     }
                 }))

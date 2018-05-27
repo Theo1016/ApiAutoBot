@@ -1,14 +1,18 @@
 package com.alpha.apiautobot.base.rest.okex;
 
+import com.alpha.apiautobot.domain.request.okex.BatchTradeRequest;
+import com.alpha.apiautobot.domain.request.okex.OrderHistoryRequest;
+import com.alpha.apiautobot.domain.request.okex.TradeOrderRequest;
+import com.alpha.apiautobot.domain.response.okex.BatchTradeResponse;
 import com.alpha.apiautobot.domain.response.okex.CoinDepth;
 import com.alpha.apiautobot.domain.response.okex.CoinTrades;
-import com.alpha.apiautobot.domain.response.okex.Ticker;
+import com.alpha.apiautobot.domain.response.okex.OrderHistoryResponse;
+import com.alpha.apiautobot.domain.response.okex.TradeOrderResponse;
 import com.alpha.apiautobot.domain.response.okex.UserInfo;
 
 import java.util.List;
 
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -23,7 +27,7 @@ public interface OKExApiService {
      * @return
      */
     @GET("/api/v1/ticker.do")
-    Call<Ticker> getTicker(@Query("symbol")String symbol);
+    Call<String> getTicker(@Query("symbol")String symbol);
 
     /**
      * Get /api/v1/depth 获取OKEx币币市场深度
@@ -88,5 +92,27 @@ public interface OKExApiService {
      */
     @Headers("SIGNED:true")
     @POST("/api/v1/userinfo.do")
-    Call<String> getUserInfo();
+    Call<UserInfo> getUserInfo();
+
+    /**
+     * 获取历史订单信息
+     * @param requestBody
+     * @return
+     */
+    @POST("/api/v1/order_history.do")
+    Call<OrderHistoryResponse> getOrderHistory(@Body OrderHistoryRequest requestBody);
+
+    /**
+     * POST /api/v1/trade 下单交易
+     */
+    @POST("/api/v1/trade")
+    Call<TradeOrderResponse> tradeOrder(@Body TradeOrderRequest orderRequest);
+
+    /**
+     * POST /api/v1/batch_trade 批量下单
+     URL https://www.okex.com/api/v1/batch_trade.do	访问频率 20次/2秒
+     */
+    @POST("/api/v1/batch_trade")
+    Call<BatchTradeResponse> batchTradeOrder(@Body BatchTradeRequest batchTradeRequest);
+
 }

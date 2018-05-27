@@ -72,6 +72,7 @@ public class HuobiPro extends AbstractPlatform {
         apiService = new Retrofit.Builder()
                 .baseUrl(getBaseUrl())
                 .client(genericClient(new HuobiProInterceptor()))
+                .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(HuobiApiService.class);

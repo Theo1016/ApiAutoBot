@@ -8,11 +8,13 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.alpha.apiautobot.domain.request.huobipro.PlaceOrders;
+import com.alpha.apiautobot.domain.request.okex.OrderHistoryRequest;
 import com.alpha.apiautobot.domain.response.huobipro.AccountBalance;
 import com.alpha.apiautobot.domain.response.huobipro.HRAccounts;
 import com.alpha.apiautobot.domain.response.huobipro.HRCoins;
 import com.alpha.apiautobot.domain.response.huobipro.HRSymbols;
 import com.alpha.apiautobot.domain.response.huobipro.PlaceOrdersResponse;
+import com.alpha.apiautobot.domain.response.okex.OrderHistoryResponse;
 import com.alpha.apiautobot.domain.response.okex.Ticker;
 import com.alpha.apiautobot.domain.response.okex.UserInfo;
 import com.alpha.apiautobot.platform.huobipro.HuobiPro;
@@ -110,38 +112,45 @@ public class TestActivity extends AppCompatActivity {
 //        });
 
         OKExClient okExClient = new OKExClient();
-//        JSONObject jsonObject = new JSONObject();
-//        RequestBody requestBody = null;
-//        try {
-//            jsonObject.put("api_key", "xxxxx");
-//            requestBody = RequestBody.create(MediaType.parse("application/json"), jsonObject.toString());
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-        okExClient.apiService.getUserInfo().enqueue(new Callback<String>() {
+        okExClient.apiService.getUserInfo().enqueue(new Callback<UserInfo>() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
+            public void onResponse(Call<UserInfo> call, Response<UserInfo> response) {
                 if(response.isSuccessful()) {
-                    Log.e("TEST", /*new Gson().toJson(*/response.body().toString()/*)*/);
+                    Log.e("TEST", "get User info:" + new Gson().toJson(response.body().toString()));
                 }else {
 
                 }
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
+            public void onFailure(Call<UserInfo> call, Throwable t) {
                 Log.e("TEST", t.getMessage());
             }
         });
+
         okExClient.apiService.getTicker("btc_usdt")
-                .enqueue(new Callback<Ticker>() {
+                .enqueue(new Callback<String >() {
                     @Override
-                    public void onResponse(Call<Ticker> call, Response<Ticker> response) {
-                        Log.e("TEST", new Gson().toJson(response.body()));
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        Log.e("TEST:getTicker", response.body());
                     }
 
                     @Override
-                    public void onFailure(Call<Ticker> call, Throwable t) {
+                    public void onFailure(Call<String> call, Throwable t) {
+
+                    }
+                });
+        OrderHistoryRequest requestBody = new OrderHistoryRequest("btc_usdt",
+                1, 1, 10);
+        okExClient.apiService.getOrderHistory(requestBody)
+                .enqueue(new Callback<OrderHistoryResponse>() {
+                    @Override
+                    public void onResponse(Call<OrderHistoryResponse> call, Response<OrderHistoryResponse> response) {
+                        Log.e("TEST", "history order:" + new Gson().toJson(response.body()));
+                    }
+
+                    @Override
+                    public void onFailure(Call<OrderHistoryResponse> call, Throwable t) {
 
                     }
                 });

@@ -54,9 +54,9 @@ public class UserInfo implements Serializable {
              * freezed : {"btc":"0","usd":"0","ltc":"0","eth":"0"}
              */
 
-            private Map<String, Object> borrow;
-            private Map<String, Object> free;
-            private Map<String, Object> freezed;
+            private Map<String, String> borrow;
+            private Map<String, String> free;
+            private Map<String, String> freezed;
 //
 //            public Map<String, String> getBorrow() {
 //                return borrow;
