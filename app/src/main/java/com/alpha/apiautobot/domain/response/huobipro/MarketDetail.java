@@ -4,6 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * <pre>
@@ -37,6 +42,8 @@ public class MarketDetail implements Serializable {
     @SerializedName("err-msg")
     public String errMsg;
 
+    public List<LastPrice> prices = new ArrayList<>();
+
     public static MarketDetail objectFromData(String str) {
 
         return new Gson().fromJson(str, MarketDetail.class);
@@ -62,13 +69,13 @@ public class MarketDetail implements Serializable {
         @SerializedName("close")
         public double close;    //当前成交价
         @SerializedName("high")
-        public int high;        //近24小时最高价
+        public double high;        //近24小时最高价
         @SerializedName("id")
-        public int id;
+        public long id;
         @SerializedName("count")
         public int count;       //近24小时累积成交数
         @SerializedName("low")
-        public int low;         //近24小时最低价
+        public double low;         //近24小时最低价
         @SerializedName("vol")
         public double vol;      //近24小时累积成交额，即sum（每一笔成交价 * 该笔的数量）
 
@@ -78,5 +85,20 @@ public class MarketDetail implements Serializable {
 
             return new Gson().fromJson(str, TickBean.class);
         }
+    }
+
+    public static class LastPrice {
+        public double price;
+        public long timestap;
+
+        public LastPrice(double price, long timestamp) {
+            this.price = price;
+            this.timestap = timestamp;
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this.ch.equals(((MarketDetail)obj).ch);
     }
 }

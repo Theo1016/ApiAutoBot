@@ -46,7 +46,8 @@ public class TestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
 
-//        HuobiPro huobiPro = new HuobiPro();
+        HuobiPro huobiPro = new HuobiPro();
+        huobiPro.connection();
 //        huobiPro.getSymbols(new Callback<HRSymbols>() {
 //            @Override
 //            public void onResponse(Call<HRSymbols> call, Response<HRSymbols> response) {
@@ -111,49 +112,49 @@ public class TestActivity extends AppCompatActivity {
 //            }
 //        });
 
-        OKExClient okExClient = new OKExClient();
-        okExClient.apiService.getUserInfo().enqueue(new Callback<UserInfo>() {
-            @Override
-            public void onResponse(Call<UserInfo> call, Response<UserInfo> response) {
-                if(response.isSuccessful()) {
-                    Log.e("TEST", "get User info:" + new Gson().toJson(response.body().toString()));
-                }else {
-
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UserInfo> call, Throwable t) {
-                Log.e("TEST", t.getMessage());
-            }
-        });
-
-        okExClient.apiService.getTicker("btc_usdt")
-                .enqueue(new Callback<String >() {
-                    @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
-                        Log.e("TEST:getTicker", response.body());
-                    }
-
-                    @Override
-                    public void onFailure(Call<String> call, Throwable t) {
-
-                    }
-                });
-        OrderHistoryRequest requestBody = new OrderHistoryRequest("btc_usdt",
-                1, 1, 10);
-        okExClient.apiService.getOrderHistory(requestBody)
-                .enqueue(new Callback<OrderHistoryResponse>() {
-                    @Override
-                    public void onResponse(Call<OrderHistoryResponse> call, Response<OrderHistoryResponse> response) {
-                        Log.e("TEST", "history order:" + new Gson().toJson(response.body()));
-                    }
-
-                    @Override
-                    public void onFailure(Call<OrderHistoryResponse> call, Throwable t) {
-
-                    }
-                });
+//        OKExClient okExClient = new OKExClient();
+//        okExClient.apiService.getUserInfo().enqueue(new Callback<UserInfo>() {
+//            @Override
+//            public void onResponse(Call<UserInfo> call, Response<UserInfo> response) {
+//                if(response.isSuccessful()) {
+//                    Log.e("TEST", "get User info:" + new Gson().toJson(response.body().toString()));
+//                }else {
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<UserInfo> call, Throwable t) {
+//                Log.e("TEST", t.getMessage());
+//            }
+//        });
+//
+//        okExClient.apiService.getTicker("btc_usdt")
+//                .enqueue(new Callback<String >() {
+//                    @Override
+//                    public void onResponse(Call<String> call, Response<String> response) {
+//                        Log.e("TEST:getTicker", response.body());
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<String> call, Throwable t) {
+//
+//                    }
+//                });
+//        OrderHistoryRequest requestBody = new OrderHistoryRequest("btc_usdt",
+//                1, 1, 10);
+//        okExClient.apiService.getOrderHistory(requestBody)
+//                .enqueue(new Callback<OrderHistoryResponse>() {
+//                    @Override
+//                    public void onResponse(Call<OrderHistoryResponse> call, Response<OrderHistoryResponse> response) {
+//                        Log.e("TEST", "history order:" + new Gson().toJson(response.body()));
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<OrderHistoryResponse> call, Throwable t) {
+//
+//                    }
+//                });
     }
 
     private void placeOrders(HRAccounts.DataBean dataBean) {
