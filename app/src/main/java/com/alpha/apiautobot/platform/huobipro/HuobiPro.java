@@ -21,8 +21,10 @@ import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -128,10 +130,15 @@ public class HuobiPro extends AbstractPlatform {
         //获取BTC最新交易行情
         List<HRSymbols.Data> list = symbolsMap.get("btc");
         for (HRSymbols.Data data : list) {
-            String symbol = data.baseCurrency + data.quoteCurrency;
+            final String symbol = data.baseCurrency + data.quoteCurrency;
             //请求市场详情
             mExecutor.execute(new Runnable() {
-                MarketDetail marketDetail;
+//                MarketDetail marketDetail;
+                //涨跌幅列表
+                Map<Integer, Double> rateMap = new HashMap<>();
+                long timeFlag;
+                Integer timeGap = 0;
+
                 @Override
                 public void run() {
                     while (true) {
@@ -143,32 +150,76 @@ public class HuobiPro extends AbstractPlatform {
                                 double lastDealPrice = marketDetail.tick.close;
                                 long timestamp = marketDetail.ts;
                                 MarketDetail.LastPrice lastPrice = new MarketDetail.LastPrice(lastDealPrice, timestamp);
-                                if(this.marketDetail == null) {
-                                    this.marketDetail = marketDetail;
-                                }
-                                this.marketDetail.prices.add(lastPrice);
-                                if(this.marketDetail.prices.size() > 120) {
-                                    //丢弃头部数据
-                                    this.marketDetail.prices.remove(0);
-                                }
-                                //检查涨跌幅
-                                int size = this.marketDetail.prices.size();
-                                if(size <= 1) {
-                                    //一条数据不做比对
+                                if(this.rateMap.size() == 0) {
+//                                    this.marketDetail = marketDetail;
+                                    //第0分钟，相当于开盘价
+                                    timeFlag = timestamp;
+                                    rateMap.put(0, lastDealPrice);
+                                    //将时间索引移动到第五分钟
+                                    timeGap += 5;
                                     continue;
+                                }else {
+                                    int second = (int)((timestamp - timeFlag) / 1000);
+                                    if(second > 60 * 5) {
+                                        //更新索引
+                                        timeFlag = timestamp;
+                                        //最多统计个数=统计时间/统计间隔+1
+                                        if(rateMap.size() >= (60 / 5 + 1)) {
+                                            //统计已满
+                                            //删除第一个元素
+                                            rateMap.remove(timeGap - 60);
+                                        }
+                                        timeGap += 5;
+                                    }
                                 }
-                                for (int i=0; i<size; i++) {
-                                    double price = this.marketDetail.prices.get(i).price;
-                                    long old_timestamp = this.marketDetail.prices.get(i).timestap;
-                                    double diff = Math.abs(lastDealPrice - price) / lastDealPrice;
+                                rateMap.put(timeGap, lastDealPrice);
+                                Iterator entries = rateMap.entrySet().iterator();
+                                while (entries.hasNext()) {
+                                    Map.Entry entry = (Map.Entry) entries.next();
+                                    //最大时间值等于已存时间间隔总数-1乘以时间间隔
+                                    Integer timeIndex = (rateMap.size() - 1) * 5;
+                                    Integer key = (Integer)entry.getKey();
+                                    if(timeIndex == key) {
+                                        break;
+                                    }
+                                    Double price1 = (Double)entry.getValue();
+                                    Double price2 = rateMap.get(timeIndex);
+                                    double diff = Math.abs(price2 - price1) / price2;
                                     String out = "%s在近%s时间内%s";
-                                    String printLog = String.format(out, symbol, ((timestamp - old_timestamp)/60000) + "分钟",
-                                            (lastDealPrice > price ? "涨幅+" : "跌幅-") + String.valueOf(diff * 100) + "%");
+                                    NumberFormat format = NumberFormat.getInstance();
+                                    format.setMaximumFractionDigits(2);
+                                    String printLog = String.format(out, symbol, timeIndex - key + "分钟",
+                                            (price2 > price1 ? "涨幅+" : "跌幅-") + format.format(diff * 100) + "%");
                                     if(diff >= 0.01) {
                                         //涨跌幅大于5%
                                         Log.e("HuobiPro", printLog);
                                     }
                                 }
+//                                this.marketDetail.prices.add(lastPrice);
+//                                if(this.marketDetail.prices.size() > 60) {
+//                                    //统计间隔5分钟
+//                                    //丢弃头部数据
+//                                    this.marketDetail.prices.remove(0);
+//                                }
+                                //检查涨跌幅
+//                                int size = this.marketDetail.prices.size();
+//                                if(size <= 1) {
+//                                    //一条数据不做比对
+//                                    continue;
+//                                }
+
+//                                for (int i=0; i<size; i++) {
+//                                    double price = this.marketDetail.prices.get(i).price;
+//                                    long old_timestamp = this.marketDetail.prices.get(i).timestap;
+//                                    double diff = Math.abs(lastDealPrice - price) / lastDealPrice;
+//                                    String out = "%s在近%s时间内%s";
+//                                    String printLog = String.format(out, symbol, ((timestamp - old_timestamp)/60000) + "分钟",
+//                                            (lastDealPrice > price ? "涨幅+" : "跌幅-") + String.valueOf(diff * 100) + "%");
+//                                    if(diff >= 0.01) {
+//                                        //涨跌幅大于5%
+//                                        Log.e("HuobiPro", printLog);
+//                                    }
+//                                }
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
