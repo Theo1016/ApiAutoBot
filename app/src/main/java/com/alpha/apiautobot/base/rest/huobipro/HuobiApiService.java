@@ -6,8 +6,11 @@ import com.alpha.apiautobot.domain.response.huobipro.BatchOrdersCancel;
 import com.alpha.apiautobot.domain.response.huobipro.HRAccounts;
 import com.alpha.apiautobot.domain.response.huobipro.HRCoins;
 import com.alpha.apiautobot.domain.response.huobipro.HRSymbols;
+import com.alpha.apiautobot.domain.response.huobipro.HRTimestamp;
 import com.alpha.apiautobot.domain.response.huobipro.HistoryTrade;
+import com.alpha.apiautobot.domain.response.huobipro.MarketDepth;
 import com.alpha.apiautobot.domain.response.huobipro.MarketDetail;
+import com.alpha.apiautobot.domain.response.huobipro.MarketDetailMerged;
 import com.alpha.apiautobot.domain.response.huobipro.OrdersDelegate;
 import com.alpha.apiautobot.domain.response.huobipro.OrdersDetail;
 import com.alpha.apiautobot.domain.response.huobipro.PlaceOrdersResponse;
@@ -138,6 +141,32 @@ public interface HuobiApiService {
     @Headers("API-TYPE:User")
     @GET("/v1/order/orders")
     Call<OrdersDelegate> getOrdersDelegate(@Body OrdersDelegateRequest request);
+
+    /**
+     * GET /market/detail/merged 获取聚合行情
+     *
+     */
+    @GET("/market/detail/merged")
+    Call<MarketDetailMerged> getMarketDetailMerged(@Query("symbol")String symbol);
+
+
+    /**
+     * GET /market/depth 获取 Market Depth 数据
+     请求参数:
+
+     参数名称	是否必须	类型	描述	默认值	取值范围
+     symbol	true	string	交易对		btcusdt, bchbtc, rcneth ...
+     type	true	string	Depth 类型		step0, step1, step2, step3, step4, step5（合并深度0-5）；step0时，不合并深度
+     用户选择“合并深度”时，一定报价精度内的市场挂单将予以合并显示。合并深度仅改变显示方式，不改变实际成交价格。
+     */
+    @GET("/market/depth")
+    Call<MarketDepth> getMarketDepth(@Query("symbol")String symbol, @Query("type")String type);
+
+    /**
+     * GET /v1/common/timestamp 查询系统当前时间
+     */
+    @GET("/v1/common/timestamp")
+    Call<HRTimestamp> getTimestamp();
 
 }
 
