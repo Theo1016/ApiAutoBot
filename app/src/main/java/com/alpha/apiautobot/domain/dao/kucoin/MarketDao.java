@@ -38,7 +38,8 @@ public class MarketDao extends AbstractDao<Market, Long> {
         public final static Property Low = new Property(13, Double.class, "low", false, "low");
         public final static Property ChangeRate = new Property(14, Double.class, "changeRate", false, "changeRate");
         public final static Property Change = new Property(15, Double.class, "change", false, "change");
-        public final static Property TimeStamp = new Property(16, String.class, "timeStamp", false, "timeStamp");
+        public final static Property TimeStamps = new Property(16, String.class, "timeStamps", false, "timeStamps");
+        public final static Property LastDealPrices = new Property(17, String.class, "lastDealPrices", false, "lastDealPrices");
     }
 
 
@@ -70,7 +71,8 @@ public class MarketDao extends AbstractDao<Market, Long> {
                 "\"low\" REAL," + // 13: low
                 "\"changeRate\" REAL," + // 14: changeRate
                 "\"change\" REAL," + // 15: change
-                "\"timeStamp\" TEXT);"); // 16: timeStamp
+                "\"timeStamps\" TEXT," + // 16: timeStamps
+                "\"lastDealPrices\" TEXT);"); // 17: lastDealPrices
     }
 
     /** Drops the underlying database table. */
@@ -155,9 +157,14 @@ public class MarketDao extends AbstractDao<Market, Long> {
             stmt.bindDouble(16, change);
         }
  
-        String timeStamp = entity.getTimeStamp();
-        if (timeStamp != null) {
-            stmt.bindString(17, timeStamp);
+        String timeStamps = entity.getTimeStamps();
+        if (timeStamps != null) {
+            stmt.bindString(17, timeStamps);
+        }
+ 
+        String lastDealPrices = entity.getLastDealPrices();
+        if (lastDealPrices != null) {
+            stmt.bindString(18, lastDealPrices);
         }
     }
 
@@ -237,9 +244,14 @@ public class MarketDao extends AbstractDao<Market, Long> {
             stmt.bindDouble(16, change);
         }
  
-        String timeStamp = entity.getTimeStamp();
-        if (timeStamp != null) {
-            stmt.bindString(17, timeStamp);
+        String timeStamps = entity.getTimeStamps();
+        if (timeStamps != null) {
+            stmt.bindString(17, timeStamps);
+        }
+ 
+        String lastDealPrices = entity.getLastDealPrices();
+        if (lastDealPrices != null) {
+            stmt.bindString(18, lastDealPrices);
         }
     }
 
@@ -267,7 +279,8 @@ public class MarketDao extends AbstractDao<Market, Long> {
             cursor.isNull(offset + 13) ? null : cursor.getDouble(offset + 13), // low
             cursor.isNull(offset + 14) ? null : cursor.getDouble(offset + 14), // changeRate
             cursor.isNull(offset + 15) ? null : cursor.getDouble(offset + 15), // change
-            cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16) // timeStamp
+            cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16), // timeStamps
+            cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17) // lastDealPrices
         );
         return entity;
     }
@@ -290,7 +303,8 @@ public class MarketDao extends AbstractDao<Market, Long> {
         entity.setLow(cursor.isNull(offset + 13) ? null : cursor.getDouble(offset + 13));
         entity.setChangeRate(cursor.isNull(offset + 14) ? null : cursor.getDouble(offset + 14));
         entity.setChange(cursor.isNull(offset + 15) ? null : cursor.getDouble(offset + 15));
-        entity.setTimeStamp(cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16));
+        entity.setTimeStamps(cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16));
+        entity.setLastDealPrices(cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17));
      }
     
     @Override
