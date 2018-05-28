@@ -12,7 +12,9 @@ import com.alpha.apiautobot.platform.binance.presenter.BinancePresenter;
 import com.alpha.apiautobot.platform.kucoin.presenter.KuCoinContract;
 import com.alpha.apiautobot.platform.kucoin.presenter.KuCoinPresenter;
 import com.alpha.apiautobot.utils.PreferenceUtil;
+import com.alpha.apiautobot.utils.Util;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -35,6 +37,7 @@ public class KuCoin extends AbstractPlatform implements KuCoinContract.View {
 //        mKuCoinPresenter.getTick("KCS-BTC");
 //        mKuCoinPresenter.listActiveOrders("KCS-BTC","BUY");
 //        mKuCoinPresenter.listTradingMarkets();
+//        getMarketList();
     }
 
     @Override
@@ -92,40 +95,64 @@ public class KuCoin extends AbstractPlatform implements KuCoinContract.View {
             return;
         }
         MarketDao marketDao = ApiAutoBotApplication.daoSession.getMarketDao();
-        List<Market> markets=marketDao.loadAll();
-        if(markets==null || markets.size()==0){//如果为空 写入数据
-            saveData(marketModel,marketDao);
-        }else{//非空,更新数据
+        List<Market> markets = marketDao.loadAll();
+        if (markets == null || markets.size() == 0) {//如果为空 写入数据
+            saveData(marketModel, marketDao);
+        } else {//非空,更新数据
+            Market market = new Market();
             for (MarketModel.data data : marketModel.data) {
-
-
-
-
+                market = marketDao.queryBuilder().where(MarketDao.Properties.CoinType.eq(data.getCoinType())).build().unique();
+                String timeStamps = market.getTimeStamps();
+                String lastDealPrices = market.getLastDealPrices();
+                try {
+                    String[] timeStampsArray = timeStamps.split("&&");
+                    String[] lastDealPricesArray = lastDealPrices.split("&&");
+                    if ((timeStampsArray == null || timeStampsArray.length >= 0) && timeStampsArray.length < 120) {
+                        market.setTimeStamps(timeStamps + "&&" + new Date().getTime());
+                        market.setLastDealPrices(lastDealPrices + "&&" + data.getLastDealPrice());
+                    } else if (timeStampsArray.length >= 120) {
+                        timeStampsArray = Util.delete(0, timeStampsArray);
+                        timeStampsArray[timeStampsArray.length - 1] = new Date().getTime() + "";
+                        lastDealPricesArray = Util.delete(0, lastDealPricesArray);
+                        lastDealPricesArray[lastDealPricesArray.length - 1] = data.getLastDealPrice() + "";
+                        market.setTimeStamps(Util.stringArrayConvertStirng(timeStampsArray));
+                        market.setLastDealPrices(Util.stringArrayConvertStirng(lastDealPricesArray));
+                    }
+                    initMarket(market, data);
+                    marketDao.update(market);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
 
     }
 
+    private void initMarket(Market market, MarketModel.data data) {
+        market.setBuy(data.getBuy());
+        market.setChange(data.getChange());
+        market.setChangeRate(data.getChangeRate());
+        market.setCoinType(data.getCoinType());
+        market.setCoinTypePair(data.getCoinTypePair());
+        market.setDatetime(data.getDatetime());
+        market.setFeeRate(data.getFeeRate());
+        market.setHigh(data.getHigh());
+        market.setLastDealPrice(data.getLastDealPrice());
+        market.setLow(data.getLow());
+        market.setSell(data.getSell());
+        market.setSort(data.getSort());
+        market.setTrading(data.isTrading());
+        market.setVol(data.getVol());
+        market.setVolValue(data.getVolValue());
+    }
+
     private void saveData(MarketModel marketModel, MarketDao marketDao) {
         for (MarketModel.data data : marketModel.data) {
             Market market = new Market();
-            market.setBuy(data.getBuy());
-            market.setChange(data.getChange());
-            market.setChangeRate(data.getChangeRate());
-            market.setCoinType(data.getCoinType());
-            market.setCoinTypePair(data.getCoinTypePair());
-            market.setDatetime(data.getDatetime());
-            market.setFeeRate(data.getFeeRate());
-            market.setHigh(data.getHigh());
-            market.setLastDealPrice(data.getLastDealPrice());
-            market.setLow(data.getLow());
-            market.setSell(data.getSell());
-            market.setSort(data.getSort());
-            market.setTrading(data.isTrading());
-            market.setVol(data.getVol());
-            market.setVolValue(data.getVolValue());
-            market.setTimeStamp(new Date().getTime()+"");
+            initMarket(market, data);
+            market.setTimeStamps(new Date().getTime() + "");
+            market.setLastDealPrices(data.getLastDealPrice() + "");
             marketDao.insert(market);
         }
     }

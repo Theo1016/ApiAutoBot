@@ -60,16 +60,20 @@ public class Market {
     @Property(nameInDb = "change")
     Double change;
 
-    @Property(nameInDb = "timeStamp")
-    String timeStamp;
+    @Property(nameInDb = "timeStamps")
+    String timeStamps;
+
+    @Property(nameInDb = "lastDealPrices")
+    String lastDealPrices;
 
 
 
-    @Generated(hash = 549244648)
+    @Generated(hash = 1560374568)
     public Market(Long id, String coinType, boolean trading, Double lastDealPrice,
             Double buy, Double sell, String coinTypePair, Double sort,
             Double feeRate, Double volValue, Double high, long datetime, Double vol,
-            Double low, Double changeRate, Double change, String timeStamp) {
+            Double low, Double changeRate, Double change, String timeStamps,
+            String lastDealPrices) {
         this.id = id;
         this.coinType = coinType;
         this.trading = trading;
@@ -86,13 +90,14 @@ public class Market {
         this.low = low;
         this.changeRate = changeRate;
         this.change = change;
-        this.timeStamp = timeStamp;
+        this.timeStamps = timeStamps;
+        this.lastDealPrices = lastDealPrices;
     }
 
     @Generated(hash = 1454995179)
     public Market() {
     }
-
+    
     
     
     public Long getId() {
@@ -227,12 +232,20 @@ public class Market {
         this.change = change;
     }
 
-    public String getTimeStamp() {
-        return this.timeStamp;
+    public String getTimeStamps() {
+        return this.timeStamps;
     }
 
-    public void setTimeStamp(String timeStamp) {
-        this.timeStamp = timeStamp;
+    public void setTimeStamps(String timeStamps) {
+        this.timeStamps = timeStamps;
+    }
+
+    public String getLastDealPrices() {
+        return this.lastDealPrices;
+    }
+
+    public void setLastDealPrices(String lastDealPrices) {
+        this.lastDealPrices = lastDealPrices;
     }
 
 }
