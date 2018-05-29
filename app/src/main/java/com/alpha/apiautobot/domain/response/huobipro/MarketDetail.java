@@ -42,7 +42,10 @@ public class MarketDetail implements Serializable {
     @SerializedName("err-msg")
     public String errMsg;
 
-    public List<LastPrice> prices = new ArrayList<>();
+    public Integer timeGap;     //时间分隔值
+    public Double price;        //时间点对应的价格
+    public Long timeStamp;      //时间点对应的时间戳
+    public String symbol;
 
     public static MarketDetail objectFromData(String str) {
 
@@ -84,16 +87,6 @@ public class MarketDetail implements Serializable {
         public static TickBean objectFromData(String str) {
 
             return new Gson().fromJson(str, TickBean.class);
-        }
-    }
-
-    public static class LastPrice {
-        public double price;
-        public long timestap;
-
-        public LastPrice(double price, long timestamp) {
-            this.price = price;
-            this.timestap = timestamp;
         }
     }
 
