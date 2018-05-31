@@ -141,16 +141,90 @@ public class KuCoin extends AbstractPlatform implements KuCoinContract.View {
             return;
         }
         //分开存
-        saveTransactionOrder(query, transactionOrderModel);
-
+//        saveTransactionOrder(query, transactionOrderModel);
         //存总量
         TransactionOrderDao transactionOrderDao = ApiAutoBotApplication.daoSession.getTransactionOrderDao();
         List<TransactionOrder> transactionOrders = transactionOrderDao.loadAll();
+        int buySize = transactionOrderModel.getData().getBUY().size();
+        int sellSize = transactionOrderModel.getData().getSELL().size();
+        int bigSize = buySize > sellSize ? buySize : sellSize;
         if (transactionOrders == null || transactionOrders.size() == 0) {
             TransactionOrder transactionOrder = new TransactionOrder();
-
+            double buyVolums = 0;
+            double sellVolums = 0;
+            for (int i = 0; i < bigSize; i++) {
+                if (buySize >= i) {
+                    buyVolums += transactionOrderModel.getData().getBUY().get(i)[2];
+                }
+                if (sellSize >= i) {
+                    sellVolums += transactionOrderModel.getData().getSELL().get(i)[2];
+                }
+            }
+            transactionOrder.setCoinType(query);
+            transactionOrder.setBuyVolume(buyVolums + "");
+            transactionOrder.setSellVolume(sellVolums + "");
             transactionOrder.setTimeStamp(new Date().getTime());
             transactionOrderDao.insert(transactionOrder);
+        } else {
+            TransactionOrder transactionOrder = new TransactionOrder();
+            transactionOrder = transactionOrderDao.queryBuilder().where(TransactionOrderDao.Properties.CoinType.eq(query)).build().unique();
+            double buyVolums = 0;
+            double sellVolums = 0;
+            String[] buyVolumeString = transactionOrder.getBuyVolume().split("&&");
+            String[] sellVolumeString = transactionOrder.getSellVolume().split("&&");
+            if ((buyVolumeString == null || sellVolumeString == null || buyVolumeString.length >= 0) && (buyVolumeString.length < 120 || sellVolumeString.length < 120)) {
+                for (int i = 0; i < bigSize; i++) {
+                    if (buySize >= i) {
+                        buyVolums += transactionOrderModel.getData().getBUY().get(i)[2];
+                    }
+                    if (sellSize >= i) {
+                        sellVolums += transactionOrderModel.getData().getSELL().get(i)[2];
+                    }
+                }
+            } else {
+                if (buyVolumeString.length >= 120) Util.delete(0, buyVolumeString);
+                if (sellVolumeString.length >= 120) Util.delete(0, sellVolumeString);
+                for (int i = 0; i < buyVolumeString.length; i++) {
+                    buyVolums += Double.valueOf(buyVolumeString[i]);
+                }
+                for (int i = 0; i < sellVolumeString.length; i++) {
+                    sellVolums += Double.valueOf(sellVolumeString[i]);
+                }
+            }
+            transactionOrder.setCoinType(query);
+            transactionOrder.setBuyVolume(buyVolums + "&&" + transactionOrder.getBuyVolume());
+            transactionOrder.setSellVolume(sellVolums + "&&" + transactionOrder.getSellVolume());
+            transactionOrder.setTimeStamp(new Date().getTime());
+            transactionOrderDao.update(transactionOrder);
+        }
+    }
+
+
+    private void initMarket(Market market, MarketModel.data data) {
+        market.setBuy(data.getBuy());
+        market.setChange(data.getChange());
+        market.setChangeRate(data.getChangeRate());
+        market.setCoinType(data.getCoinType());
+        market.setCoinTypePair(data.getCoinTypePair());
+        market.setDatetime(data.getDatetime());
+        market.setFeeRate(data.getFeeRate());
+        market.setHigh(data.getHigh());
+        market.setLastDealPrice(data.getLastDealPrice());
+        market.setLow(data.getLow());
+        market.setSell(data.getSell());
+        market.setSort(data.getSort());
+        market.setTrading(data.isTrading());
+        market.setVol(data.getVol());
+        market.setVolValue(data.getVolValue());
+    }
+
+    private void saveData(MarketModel marketModel, MarketDao marketDao) {
+        for (MarketModel.data data : marketModel.data) {
+            Market market = new Market();
+            initMarket(market, data);
+            market.setTimeStamps(new Date().getTime() + "");
+            market.setLastDealPrices(data.getLastDealPrice() + "");
+            marketDao.insert(market);
         }
     }
 
@@ -221,34 +295,6 @@ public class KuCoin extends AbstractPlatform implements KuCoinContract.View {
             transactionOrder.setSellPrice(sellPrice + transactionOrderModel.getData().getSELL().get(i)[0] + "");
             transactionOrder.setSellAmount(sellAmount + transactionOrderModel.getData().getSELL().get(i)[1] + "");
             transactionOrder.setSellVolume(sellVolume + transactionOrderModel.getData().getSELL().get(i)[2] + "");
-        }
-    }
-
-    private void initMarket(Market market, MarketModel.data data) {
-        market.setBuy(data.getBuy());
-        market.setChange(data.getChange());
-        market.setChangeRate(data.getChangeRate());
-        market.setCoinType(data.getCoinType());
-        market.setCoinTypePair(data.getCoinTypePair());
-        market.setDatetime(data.getDatetime());
-        market.setFeeRate(data.getFeeRate());
-        market.setHigh(data.getHigh());
-        market.setLastDealPrice(data.getLastDealPrice());
-        market.setLow(data.getLow());
-        market.setSell(data.getSell());
-        market.setSort(data.getSort());
-        market.setTrading(data.isTrading());
-        market.setVol(data.getVol());
-        market.setVolValue(data.getVolValue());
-    }
-
-    private void saveData(MarketModel marketModel, MarketDao marketDao) {
-        for (MarketModel.data data : marketModel.data) {
-            Market market = new Market();
-            initMarket(market, data);
-            market.setTimeStamps(new Date().getTime() + "");
-            market.setLastDealPrices(data.getLastDealPrice() + "");
-            marketDao.insert(market);
         }
     }
 }
