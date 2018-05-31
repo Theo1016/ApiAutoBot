@@ -14,11 +14,13 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 public class CoinIncreaseRunnable implements Runnable {
+    static final long TIME_GAP = 5 * 60;    //单位s
+    static final long MAX_STATIS = 60 * 60;
+
     final List<MarketDetail> marketDetailList;
     final String symbol;
     final HuobiApiService apiService;
-
-    private String requestSymbol = null;
+    final String requestSymbol;
 
     public CoinIncreaseRunnable(String symbol, HuobiApiService service, List<MarketDetail> details) {
         this.marketDetailList = details;
@@ -39,50 +41,42 @@ public class CoinIncreaseRunnable implements Runnable {
                     marketDetail.symbol = symbol;
                     double lastDealPrice = marketDetail.tick.close;
                     long timestamp = marketDetail.ts;
-//                                MarketDetail.LastPrice lastPrice = new MarketDetail.LastPrice(lastDealPrice, timestamp);
-                    if (this.marketDetailList.size() == 0) {
-//                                    this.marketDetail = marketDetail;
-                        //第一个时间间隔，相当于开盘价
+                    if (marketDetailList.isEmpty() || marketDetailList.size() == 1) {
+                        //当列表为空时，添加第一个时间间隔，相当于开盘价
+                        //当列表只有一个统计节点时，直接添加第二个统计节点,此后数据从第二个节点开始更新
                         marketDetail.price = lastDealPrice;
                         marketDetail.timeStamp = timestamp;
-                        marketDetail.timeGap = 5;
+//                        marketDetail.timeGap = 5;
                         marketDetailList.add(marketDetail);
-//                                    timeFlag = timestamp;
-//                                    rateMap.put(0, lastDealPrice);
-                        //将时间索引移动到第五分钟
-//                                    timeGap += 5;
-//                                    continue;
                     } else {
-                        //当前时间与最近时间比较
                         int pos = marketDetailList.size() - 1;
-                        int second = (int) ((timestamp - marketDetailList.get(pos).ts) / 1000);
-                        if (second > 60 * 5) {
-                            //达到时间间隔，更新索引
-//                                        timeFlag = timestamp;
-                            //最多统计个数=统计时间/统计间隔+1
-//                                        if(rateMap.size() >= (60 / 5 + 1)) {
-//                                            //统计已满
-//                                            //删除第一个元素
-//                                            rateMap.remove(timeGap - 60);
-//                                        }
-//                                        timeGap += 5;
-                            if (marketDetailList.size() == 60 / 5) {
-                                //统计已满，删除第一个统计值
+                        //当前时间与最近时间比较
+                        long lastTime = marketDetailList.get(pos).ts;
+                        //当前最新价时间与上次价格时间相差
+                        int second = (int) ((timestamp - lastTime) / 1000);
+                        if (second > TIME_GAP) {
+                            //到达统计时间间隔，新增统计点
+                            if (marketDetailList.size() == MAX_STATIS / TIME_GAP) {
+                                //统计点已满，删除第一个统计值
                                 marketDetailList.remove(0);
                             }
                             //时间间隔累加
-                            marketDetail.timeGap = marketDetailList.get(pos).timeGap + 5;
+//                            marketDetail.timeGap = marketDetailList.get(pos).timeGap + 5;
                             marketDetail.price = lastDealPrice;
                             marketDetail.timeStamp = timestamp;
                             marketDetailList.add(marketDetail);
                         } else {
-                            //时间间隔内
-                            //更新时间戳，价格
+                            //时间间隔内，更新时间戳，价格
                             marketDetailList.get(pos).timeStamp = timestamp;
                             marketDetailList.get(pos).price = lastDealPrice;
                         }
                     }
-                    Log.e("CoinIncreaseRunnable", symbol + "已统计" + marketDetailList.size());
+
+                    //这里可以将数据存储至数据库
+
+                    if(symbol.equals("ht/btc")) {
+                        Log.e("CoinIncreaseRunnable", symbol + "已统计" + marketDetailList.size());
+                    }
                     //从后向前遍历
 //                    int i = marketDetailList.size() - 1;
 //                    for (int j = 0; j <= i; j++) {

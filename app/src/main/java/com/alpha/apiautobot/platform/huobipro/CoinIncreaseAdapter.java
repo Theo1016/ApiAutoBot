@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.alpha.apiautobot.R;
+import com.alpha.apiautobot.domain.dao.kucoin.Market;
 import com.alpha.apiautobot.domain.response.huobipro.MarketDetail;
 
 import java.text.NumberFormat;
@@ -25,6 +26,19 @@ public class CoinIncreaseAdapter extends RecyclerView.Adapter<CoinIncreaseAdapte
     }
 
     public void update(List<List<MarketDetail>> details) {
+//        int j = 0;
+//        for (;j<details.size();) {
+//            for (int i=0; i<mDatas.size(); i++) {
+//                List<MarketDetail> list = mDatas.get(i);
+//                if(list.get(0).symbol.equals(details.get(j).get(0).symbol)) {
+//                    //symbol相同
+//                    //替换旧数据
+//                    mDatas.set(i, details.get(j));
+//                    j++;
+//                    break;
+//                }
+//            }
+//        }
         this.mDatas = details;
         notifyDataSetChanged();
     }
@@ -44,111 +58,165 @@ public class CoinIncreaseAdapter extends RecyclerView.Adapter<CoinIncreaseAdapte
             int last = marketDetails.size() - 1;
             Double price1 = marketDetails.get(last).price;
             Double price2 = null;
-
             NumberFormat format = NumberFormat.getInstance();
             format.setMaximumFractionDigits(2);
 
-            if(marketDetails.size() >= 1) {
-                //5min
-                if(marketDetails.size() == 1) {
-                    price2 = marketDetails.get(0).tick.close;
-                }else {
-                    price2 = marketDetails.get(last - 1).price;
-                }
-                double increase = caculateIncrease(price1, price2);
-                if(price1 > price2) {
-                    holder.tv_5min.setText("+" + format.format(increase) + "%");
-                }else if(price1 < price2){
-                    holder.tv_5min.setText("-" + format.format(increase) + "%");
-                }else {
-                    holder.tv_5min.setText(format.format(increase) + "%");
-                }
-                if(increase > 2) {
+            //取出最新统计数据
+            MarketDetail detail = marketDetails.get(last);
+            long timestamp = detail.timeStamp;
+            //从后向前遍历时间间隔
+            for (int i=last-1; i>=0; i--) {
+                MarketDetail tmp = marketDetails.get(i);
+                long diff = (timestamp - tmp.timeStamp)/ 1000;
+                if(diff <= 5 * 60) {
+                    //5min以内
+                    price2 = tmp.price;
+                    double increase = caculateIncrease(price1, price2);
                     if(price1 > price2) {
-                        holder.tv_5min.setTextColor(Color.parseColor("#01aa78"));
+                        holder.tv_5min.setText("+" + format.format(increase) + "%");
+                    }else if(price1 < price2){
+                        holder.tv_5min.setText("-" + format.format(increase) + "%");
                     }else {
-                        holder.tv_5min.setTextColor(Color.parseColor("#e53600"));
+                        holder.tv_5min.setText(format.format(increase) + "%");
+                    }
+                }else if(diff > 5 * 60 && diff <= 15 * 60) {
+                    price2 = tmp.price;
+                    double increase = caculateIncrease(price1, price2);
+                    if(price1 > price2) {
+                        holder.tv_15min.setText("+" + format.format(increase) + "%");
+                    }else if(price1 < price2){
+                        holder.tv_15min.setText("-" + format.format(increase) + "%");
+                    }else {
+                        holder.tv_15min.setText(format.format(increase) + "%");
+                    }
+                }else if(diff > 15* 60 && diff <= 30 * 60) {
+                    price2 = tmp.price;
+                    double increase = caculateIncrease(price1, price2);
+                    if(price1 > price2) {
+                        holder.tv_30min.setText("+" + format.format(increase) + "%");
+                    }else if(price1 < price2){
+                        holder.tv_30min.setText("-" + format.format(increase) + "%");
+                    }else {
+                        holder.tv_30min.setText(format.format(increase) + "%");
+                    }
+                }else if(diff > 30 * 60 && diff <= 60 * 60) {
+                    price2 = tmp.price;
+                    double increase = caculateIncrease(price1, price2);
+                    if(price1 > price2) {
+                        holder.tv_60min.setText("+" + format.format(increase) + "%");
+                    }else if(price1 < price2){
+                        holder.tv_60min.setText("-" + format.format(increase) + "%");
+                    }else {
+                        holder.tv_60min.setText(format.format(increase) + "%");
                     }
                 }else {
-                    holder.tv_5min.setTextColor(Color.parseColor("#000000"));
+                    holder.tv_5min.setText("--");
+                    holder.tv_15min.setText("--");
+                    holder.tv_30min.setText("--");
+                    holder.tv_60min.setText("--");
                 }
             }
-            if(marketDetails.size() >= 3) {
-                //15min
-                if(last + 1 == 3) {
-                    MarketDetail marketDetail = marketDetails.get(0);
-                    price2 = marketDetail.tick.close;
-                }else {
-                    price2 = marketDetails.get(last- 3).price;
-                }
-                double increase = caculateIncrease(price1, price2);
-                if(price1 > price2) {
-                    holder.tv_15min.setText("+" + format.format(increase) + "%");
-                }else if(price1 < price2){
-                    holder.tv_15min.setText("-" + format.format(increase) + "%");
-                }else {
-                    holder.tv_15min.setText(format.format(increase) + "%");
-                }
-                if(increase > 2) {
-                    if(price1 > price2) {
-                        holder.tv_15min.setTextColor(Color.parseColor("#01aa78"));
-                    }else {
-                        holder.tv_15min.setTextColor(Color.parseColor("#e53600"));
-                    }
-                }else {
-                    holder.tv_15min.setTextColor(Color.parseColor("#000000"));
-                }
-            }
-            if(marketDetails.size() >= 6) {
-                //30min
-                if(last + 1 == 6) {
-                    price2 = marketDetails.get(0).tick.close;
-                }else {
-                    price2 = marketDetails.get(last - 6).price;
-                }
-                double increase = caculateIncrease(price1, price2);
-                if(price1 > price2) {
-                    holder.tv_30min.setText("+" + format.format(increase) + "%");
-                }else if(price1 < price2){
-                    holder.tv_30min.setText("-" + format.format(increase) + "%");
-                }else {
-                    holder.tv_30min.setText(format.format(increase) + "%");
-                }
-                if(increase > 2) {
-                    if(price1 > price2) {
-                        holder.tv_30min.setTextColor(Color.parseColor("#01aa78"));
-                    }else {
-                        holder.tv_30min.setTextColor(Color.parseColor("#e53600"));
-                    }
-                }else {
-                    holder.tv_30min.setTextColor(Color.parseColor("#000000"));
-                }
-            }
-            if(marketDetails.size() == 12) {
-                //60min
-                if(last + 1 == 12) {
-                    price2 = marketDetails.get(0).tick.close;
-                }else {
-                    price2 = marketDetails.get(last - 12).price;
-                }
-                double increase = caculateIncrease(price1, price2);
-                if(price1 > price2) {
-                    holder.tv_60min.setText("+" + format.format(increase) + "%");
-                }else if(price1 < price2){
-                    holder.tv_60min.setText("-" + format.format(increase) + "%");
-                }else {
-                    holder.tv_60min.setText(format.format(increase) + "%");
-                }
-                if(increase > 2) {
-                    if(price1 > price2) {
-                        holder.tv_60min.setTextColor(Color.parseColor("#01aa78"));
-                    }else {
-                        holder.tv_60min.setTextColor(Color.parseColor("#e5360"));
-                    }
-                }else {
-                    holder.tv_60min.setTextColor(Color.parseColor("#000000"));
-                }
-            }
+//            if(marketDetails.size() >= 1) {
+//                //5min
+//                if(marketDetails.size() == 1) {
+//                    price2 = marketDetails.get(0).tick.close;
+//                }else {
+//                    price2 = marketDetails.get(last - 1).price;
+//                }
+//                double increase = caculateIncrease(price1, price2);
+//                if(price1 > price2) {
+//                    holder.tv_5min.setText("+" + format.format(increase) + "%");
+//                }else if(price1 < price2){
+//                    holder.tv_5min.setText("-" + format.format(increase) + "%");
+//                }else {
+//                    holder.tv_5min.setText(format.format(increase) + "%");
+//                }
+//                if(increase > 2) {
+//                    if(price1 > price2) {
+//                        holder.tv_5min.setTextColor(Color.parseColor("#01aa78"));
+//                    }else {
+//                        holder.tv_5min.setTextColor(Color.parseColor("#e53600"));
+//                    }
+//                }else {
+//                    holder.tv_5min.setTextColor(Color.parseColor("#000000"));
+//                }
+//            }
+//            if(marketDetails.size() >= 3) {
+//                //15min
+//                if(last + 1 == 3) {
+//                    MarketDetail marketDetail = marketDetails.get(0);
+//                    price2 = marketDetail.tick.close;
+//                }else {
+//                    price2 = marketDetails.get(last- 3).price;
+//                }
+//                double increase = caculateIncrease(price1, price2);
+//                if(price1 > price2) {
+//                    holder.tv_15min.setText("+" + format.format(increase) + "%");
+//                }else if(price1 < price2){
+//                    holder.tv_15min.setText("-" + format.format(increase) + "%");
+//                }else {
+//                    holder.tv_15min.setText(format.format(increase) + "%");
+//                }
+//                if(increase > 2) {
+//                    if(price1 > price2) {
+//                        holder.tv_15min.setTextColor(Color.parseColor("#01aa78"));
+//                    }else {
+//                        holder.tv_15min.setTextColor(Color.parseColor("#e53600"));
+//                    }
+//                }else {
+//                    holder.tv_15min.setTextColor(Color.parseColor("#000000"));
+//                }
+//            }
+//            if(marketDetails.size() >= 6) {
+//                //30min
+//                if(last + 1 == 6) {
+//                    price2 = marketDetails.get(0).tick.close;
+//                }else {
+//                    price2 = marketDetails.get(last - 6).price;
+//                }
+//                double increase = caculateIncrease(price1, price2);
+//                if(price1 > price2) {
+//                    holder.tv_30min.setText("+" + format.format(increase) + "%");
+//                }else if(price1 < price2){
+//                    holder.tv_30min.setText("-" + format.format(increase) + "%");
+//                }else {
+//                    holder.tv_30min.setText(format.format(increase) + "%");
+//                }
+//                if(increase > 2) {
+//                    if(price1 > price2) {
+//                        holder.tv_30min.setTextColor(Color.parseColor("#01aa78"));
+//                    }else {
+//                        holder.tv_30min.setTextColor(Color.parseColor("#e53600"));
+//                    }
+//                }else {
+//                    holder.tv_30min.setTextColor(Color.parseColor("#000000"));
+//                }
+//            }
+//            if(marketDetails.size() == 12) {
+//                //60min
+//                if(last + 1 == 12) {
+//                    price2 = marketDetails.get(0).tick.close;
+//                }else {
+//                    price2 = marketDetails.get(last - 12).price;
+//                }
+//                double increase = caculateIncrease(price1, price2);
+//                if(price1 > price2) {
+//                    holder.tv_60min.setText("+" + format.format(increase) + "%");
+//                }else if(price1 < price2){
+//                    holder.tv_60min.setText("-" + format.format(increase) + "%");
+//                }else {
+//                    holder.tv_60min.setText(format.format(increase) + "%");
+//                }
+//                if(increase > 2) {
+//                    if(price1 > price2) {
+//                        holder.tv_60min.setTextColor(Color.parseColor("#01aa78"));
+//                    }else {
+//                        holder.tv_60min.setTextColor(Color.parseColor("#e5360"));
+//                    }
+//                }else {
+//                    holder.tv_60min.setTextColor(Color.parseColor("#000000"));
+//                }
+//            }
         }
 
     }
