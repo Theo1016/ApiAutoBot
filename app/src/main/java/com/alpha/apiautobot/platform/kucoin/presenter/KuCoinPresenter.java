@@ -4,6 +4,7 @@ import com.alpha.apiautobot.base.Config;
 import com.alpha.apiautobot.base.rest.kucoin.KuCoinApiClient;
 import com.alpha.apiautobot.base.rest.kucoin.KuCoinInterceptor;
 import com.alpha.apiautobot.domain.response.kucoin.MarketModel;
+import com.alpha.apiautobot.domain.response.kucoin.TransactionOrderModel;
 import com.alpha.apiautobot.platform.kucoin.KuCoinApiConstants;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -144,6 +145,35 @@ public class KuCoinPresenter implements KuCoinContract.Presenter {
 
             @Override
             public void onFailure(Call<MarketModel> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public void orderBook(String symbol, String group, String limit) {
+        String payload="symbol="+symbol+"&group="+group+"&limit="+limit;
+        KuCoinApiClient.CreateApiService(KuCoinApiConstants.API_BASE_URL,
+                KuCoinApiClient.genericClient(new KuCoinInterceptor(Config.KUCOIN_API_KEY, Config.KUCOIN_SECRET,"/v1/open/orders",payload)));
+        Call<TransactionOrderModel> call = KuCoinApiClient.service.requestOrders(symbol,group,String.valueOf(limit));
+        call.enqueue(new Callback<TransactionOrderModel>() {
+            @Override
+            public void onResponse(Call<TransactionOrderModel> call, Response<TransactionOrderModel> response) {
+                okhttp3.Response res = response.raw();
+                if (res.isSuccessful()) {
+                    try {
+                        if(response.body().getSuccess()){
+                            mKuCoinContractView.callback(call.request().url().query()+"",response.body());
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }else{
+                }
+            }
+
+            @Override
+            public void onFailure(Call<TransactionOrderModel> call, Throwable t) {
                 t.printStackTrace();
             }
         });

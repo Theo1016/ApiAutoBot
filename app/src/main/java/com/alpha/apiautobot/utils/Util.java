@@ -177,7 +177,7 @@ public class Util {
         for(String str : stringArray){
             sb.append(str+"&&");
         }
-        sb.replace(sb.length()-1,sb.length(),"");
+        sb.replace(sb.length()-2,sb.length(),"");
         return sb.toString();
     }
 
