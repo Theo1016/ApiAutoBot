@@ -38,7 +38,6 @@ public class HuobiProInterceptor implements Interceptor {
                 .addHeader("Content-Type", original.method().toUpperCase().equals("GET") ? "application/x-www-form-urlencoded" : "application/json")
                 .url(newUrl==null ? original.url() : newUrl)
                 .build();
-        Log.d("HuobiProInterceptor", request.toString());
         return chain.proceed(request);
     }
 }

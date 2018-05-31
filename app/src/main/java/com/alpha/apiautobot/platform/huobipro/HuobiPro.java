@@ -1,12 +1,16 @@
 package com.alpha.apiautobot.platform.huobipro;
 
+import android.util.Log;
+
 import com.alpha.apiautobot.base.rest.huobipro.HuobiApiService;
 import com.alpha.apiautobot.base.rest.huobipro.HuobiProInterceptor;
+import com.alpha.apiautobot.domain.dao.kucoin.Market;
 import com.alpha.apiautobot.domain.request.huobipro.PlaceOrders;
 import com.alpha.apiautobot.domain.response.huobipro.AccountBalance;
 import com.alpha.apiautobot.domain.response.huobipro.HRAccounts;
 import com.alpha.apiautobot.domain.response.huobipro.HRCoins;
 import com.alpha.apiautobot.domain.response.huobipro.HRSymbols;
+import com.alpha.apiautobot.domain.response.huobipro.MarketDetail;
 import com.alpha.apiautobot.domain.response.huobipro.PlaceOrdersResponse;
 import com.alpha.apiautobot.platform.AbstractPlatform;
 import com.alpha.apiautobot.utils.ApiSignature;
@@ -17,9 +21,14 @@ import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
@@ -27,9 +36,9 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
@@ -47,6 +56,11 @@ public class HuobiPro extends AbstractPlatform {
 
     public HuobiApiService apiService;
     public OkHttpClient httpClient;
+    private ExecutorService mExecutor = Executors.newFixedThreadPool(200);
+
+    //交易对列表
+    private Map<String, List<HRSymbols.Data>> symbolsMap = new HashMap<>();
+    private List<List<MarketDetail>> coinDetails = new ArrayList<>();
 
     public OkHttpClient genericClient(Interceptor interceptor) {
         OkHttpClient httpClient = new OkHttpClient.Builder()
@@ -80,7 +94,30 @@ public class HuobiPro extends AbstractPlatform {
 
     @Override
     public void connection() {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                Call<HRSymbols> call = apiService.getCommonSymbols();
+                try {
+                    Response<HRSymbols> response = call.execute();
+                    if(response.isSuccessful()) {
+                        HRSymbols hrSymbols = response.body();
+                        for (HRSymbols.Data symbol : hrSymbols.data) {
+                            String quoteCurrency = symbol.quoteCurrency;
+                            if(!symbolsMap.containsKey(quoteCurrency)) {
+                                symbolsMap.put(quoteCurrency, new ArrayList<>());
+                            }
+                            symbolsMap.get(quoteCurrency).add(symbol);
+                        }
+                        getMarketList();
+                    }else {
 
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override
@@ -90,6 +127,23 @@ public class HuobiPro extends AbstractPlatform {
 
     @Override
     public void getMarketList() {
+        //获取指定交易对行情
+        //获取BTC最新交易行情
+        List<HRSymbols.Data> list = symbolsMap.get("btc");
+        for (HRSymbols.Data data : list) {
+//            final String symbol = data.baseCurrency + data.quoteCurrency;
+//            if(data.baseCurrency.equals("ht")) {
+                final List<MarketDetail> details = new ArrayList<>();
+                coinDetails.add(details);
+                //请求市场详情
+                mExecutor.execute(new CoinIncreaseRunnable(data.baseCurrency + "/" + data.quoteCurrency, apiService, details));
+//                break;
+//            }
+        }
+    }
+
+    public List<List<MarketDetail>> getCoinDetails() {
+        return this.coinDetails;
     }
 
     @Override
@@ -151,6 +205,13 @@ public class HuobiPro extends AbstractPlatform {
      */
     public void getCoins(Callback<HRCoins> callback) {
         get("getCurrencys", callback);
+    }
+
+    /**
+     * 获取交易详情
+     */
+    public void getTradeDetails(Callback<MarketDetail> callback) {
+
     }
 
     /**

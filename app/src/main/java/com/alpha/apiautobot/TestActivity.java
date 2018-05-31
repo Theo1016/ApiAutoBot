@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -13,10 +15,14 @@ import com.alpha.apiautobot.domain.response.huobipro.AccountBalance;
 import com.alpha.apiautobot.domain.response.huobipro.HRAccounts;
 import com.alpha.apiautobot.domain.response.huobipro.HRCoins;
 import com.alpha.apiautobot.domain.response.huobipro.HRSymbols;
+import com.alpha.apiautobot.domain.response.huobipro.MarketDetail;
 import com.alpha.apiautobot.domain.response.huobipro.PlaceOrdersResponse;
 import com.alpha.apiautobot.domain.response.okex.OrderHistoryResponse;
 import com.alpha.apiautobot.domain.response.okex.Ticker;
 import com.alpha.apiautobot.domain.response.okex.UserInfo;
+import com.alpha.apiautobot.platform.huobipro.CoinIncreaseAdapter;
+import com.alpha.apiautobot.platform.huobipro.CoinIncreaseView;
+import com.alpha.apiautobot.platform.huobipro.HuobiPresenter;
 import com.alpha.apiautobot.platform.huobipro.HuobiPro;
 import com.alpha.apiautobot.platform.okex.OKExClient;
 import com.alpha.apiautobot.utils.ApiSignature;
@@ -27,7 +33,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import okhttp3.MediaType;
@@ -37,9 +46,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class TestActivity extends AppCompatActivity {
-    @BindView(R.id.content)
-    TextView content;
+public class TestActivity extends AppCompatActivity implements CoinIncreaseView{
+
+    private RecyclerView recyclerView;
+    private HuobiPresenter mPresenter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,6 +57,7 @@ public class TestActivity extends AppCompatActivity {
         setContentView(R.layout.activity_test);
 
 //        HuobiPro huobiPro = new HuobiPro();
+//        huobiPro.connection();
 //        huobiPro.getSymbols(new Callback<HRSymbols>() {
 //            @Override
 //            public void onResponse(Call<HRSymbols> call, Response<HRSymbols> response) {
@@ -111,49 +122,59 @@ public class TestActivity extends AppCompatActivity {
 //            }
 //        });
 
-        OKExClient okExClient = new OKExClient();
-        okExClient.apiService.getUserInfo().enqueue(new Callback<UserInfo>() {
+//        OKExClient okExClient = new OKExClient();
+//        okExClient.apiService.getUserInfo().enqueue(new Callback<UserInfo>() {
+//            @Override
+//            public void onResponse(Call<UserInfo> call, Response<UserInfo> response) {
+//                if(response.isSuccessful()) {
+//                    Log.e("TEST", "get User info:" + new Gson().toJson(response.body().toString()));
+//                }else {
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<UserInfo> call, Throwable t) {
+//                Log.e("TEST", t.getMessage());
+//            }
+//        });
+//
+//        okExClient.apiService.getTicker("btc_usdt")
+//                .enqueue(new Callback<String >() {
+//                    @Override
+//                    public void onResponse(Call<String> call, Response<String> response) {
+//                        Log.e("TEST:getTicker", response.body());
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<String> call, Throwable t) {
+//
+//                    }
+//                });
+//        OrderHistoryRequest requestBody = new OrderHistoryRequest("btc_usdt",
+//                1, 1, 10);
+//        okExClient.apiService.getOrderHistory(requestBody)
+//                .enqueue(new Callback<OrderHistoryResponse>() {
+//                    @Override
+//                    public void onResponse(Call<OrderHistoryResponse> call, Response<OrderHistoryResponse> response) {
+//                        Log.e("TEST", "history order:" + new Gson().toJson(response.body()));
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<OrderHistoryResponse> call, Throwable t) {
+//
+//                    }
+//                });
+
+        recyclerView = findViewById(R.id.recyclerview);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mPresenter = new HuobiPresenter(this);
+        new Timer().schedule(new TimerTask() {
             @Override
-            public void onResponse(Call<UserInfo> call, Response<UserInfo> response) {
-                if(response.isSuccessful()) {
-                    Log.e("TEST", "get User info:" + new Gson().toJson(response.body().toString()));
-                }else {
-
-                }
+            public void run() {
+                mPresenter.requestCoinDetails();
             }
-
-            @Override
-            public void onFailure(Call<UserInfo> call, Throwable t) {
-                Log.e("TEST", t.getMessage());
-            }
-        });
-
-        okExClient.apiService.getTicker("btc_usdt")
-                .enqueue(new Callback<String >() {
-                    @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
-                        Log.e("TEST:getTicker", response.body());
-                    }
-
-                    @Override
-                    public void onFailure(Call<String> call, Throwable t) {
-
-                    }
-                });
-        OrderHistoryRequest requestBody = new OrderHistoryRequest("btc_usdt",
-                1, 1, 10);
-        okExClient.apiService.getOrderHistory(requestBody)
-                .enqueue(new Callback<OrderHistoryResponse>() {
-                    @Override
-                    public void onResponse(Call<OrderHistoryResponse> call, Response<OrderHistoryResponse> response) {
-                        Log.e("TEST", "history order:" + new Gson().toJson(response.body()));
-                    }
-
-                    @Override
-                    public void onFailure(Call<OrderHistoryResponse> call, Throwable t) {
-
-                    }
-                });
+        }, 1000, 5000);
     }
 
     private void placeOrders(HRAccounts.DataBean dataBean) {
@@ -174,6 +195,23 @@ public class TestActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<PlaceOrdersResponse> call, Throwable t) {
 
+            }
+        });
+    }
+
+    private CoinIncreaseAdapter mAdapter;
+
+    @Override
+    public void refreshView(List<List<MarketDetail>> coinDetails) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(mAdapter == null) {
+                    mAdapter = new CoinIncreaseAdapter(coinDetails);
+                    recyclerView.setAdapter(mAdapter);
+                }else {
+                    mAdapter.update(coinDetails);
+                }
             }
         });
     }
