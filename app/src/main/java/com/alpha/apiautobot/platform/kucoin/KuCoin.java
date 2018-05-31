@@ -148,52 +148,94 @@ public class KuCoin extends AbstractPlatform implements KuCoinContract.View {
         int buySize = transactionOrderModel.getData().getBUY().size();
         int sellSize = transactionOrderModel.getData().getSELL().size();
         int bigSize = buySize > sellSize ? buySize : sellSize;
+        //计算最新买卖盘数据
+        double buyVolums = 0;
+        double sellVolums = 0;
+        for (int i = 0; i < bigSize; i++) {
+            if (buySize >= i) {
+                buyVolums += transactionOrderModel.getData().getBUY().get(i)[2];
+            }
+            if (sellSize >= i) {
+                sellVolums += transactionOrderModel.getData().getSELL().get(i)[2];
+            }
+        }
+
         if (transactionOrders == null || transactionOrders.size() == 0) {
             TransactionOrder transactionOrder = new TransactionOrder();
-            double buyVolums = 0;
-            double sellVolums = 0;
-            for (int i = 0; i < bigSize; i++) {
-                if (buySize >= i) {
-                    buyVolums += transactionOrderModel.getData().getBUY().get(i)[2];
-                }
-                if (sellSize >= i) {
-                    sellVolums += transactionOrderModel.getData().getSELL().get(i)[2];
-                }
-            }
+//            double buyVolums = 0;
+//            double sellVolums = 0;
+//            for (int i = 0; i < bigSize; i++) {
+//                if (buySize >= i) {
+//                    buyVolums += transactionOrderModel.getData().getBUY().get(i)[2];
+//                }
+//                if (sellSize >= i) {
+//                    sellVolums += transactionOrderModel.getData().getSELL().get(i)[2];
+//                }
+//            }
             transactionOrder.setCoinType(query);
             transactionOrder.setBuyVolume(buyVolums + "");
             transactionOrder.setSellVolume(sellVolums + "");
             transactionOrder.setTimeStamp(new Date().getTime());
             transactionOrderDao.insert(transactionOrder);
+            return;
         } else {
             TransactionOrder transactionOrder = new TransactionOrder();
             transactionOrder = transactionOrderDao.queryBuilder().where(TransactionOrderDao.Properties.CoinType.eq(query)).build().unique();
-            double buyVolums = 0;
-            double sellVolums = 0;
+//            double buyVolums = 0;
+//            double sellVolums = 0;
             String[] buyVolumeString = transactionOrder.getBuyVolume().split("&&");
             String[] sellVolumeString = transactionOrder.getSellVolume().split("&&");
+            String updateBuyVolume = null;
+            String updateSellVolume = null;
             if ((buyVolumeString == null || sellVolumeString == null || buyVolumeString.length >= 0) && (buyVolumeString.length < 120 || sellVolumeString.length < 120)) {
-                for (int i = 0; i < bigSize; i++) {
-                    if (buySize >= i) {
-                        buyVolums += transactionOrderModel.getData().getBUY().get(i)[2];
-                    }
-                    if (sellSize >= i) {
-                        sellVolums += transactionOrderModel.getData().getSELL().get(i)[2];
-                    }
+//                for (int i = 0; i < bigSize; i++) {
+//                    if (buySize >= i) {
+//                        buyVolums += transactionOrderModel.getData().getBUY().get(i)[2];
+//                    }
+//                    if (sellSize >= i) {
+//                        sellVolums += transactionOrderModel.getData().getSELL().get(i)[2];
+//                    }
+//                }
+
+                if (buyVolumeString != null && buyVolumeString.length > 0) {
+                    //买卖盘记录的数量相等，比较买或卖的记录长度即可
+                    updateBuyVolume = transactionOrder.getBuyVolume() + "&&" + buyVolums;
+                    updateSellVolume = transactionOrder.getSellVolume() + "&&" + sellVolums;
                 }
             } else {
-                if (buyVolumeString.length >= 120) Util.delete(0, buyVolumeString);
-                if (sellVolumeString.length >= 120) Util.delete(0, sellVolumeString);
-                for (int i = 0; i < buyVolumeString.length; i++) {
-                    buyVolums += Double.valueOf(buyVolumeString[i]);
+                int index = -1;
+                if (buyVolumeString.length >= 120) {
+//                    Util.delete(0, buyVolumeString);
+                    //删除头部数据
+                    index = transactionOrder.getBuyVolume().indexOf("&&");
+                    if(index != -1) {
+                        updateBuyVolume = transactionOrder.getBuyVolume().substring(index + 2);
+                    }
                 }
-                for (int i = 0; i < sellVolumeString.length; i++) {
-                    sellVolums += Double.valueOf(sellVolumeString[i]);
+                if (sellVolumeString.length >= 120) {
+//                    Util.delete(0, sellVolumeString);
+                    index = transactionOrder.getSellVolume().indexOf("&&");
+                    if (index != -1) {
+                        updateSellVolume = transactionOrder.getSellVolume().substring(index + 2);
+                    }
                 }
+//                for (int i = 0; i < buyVolumeString.length; i++) {
+//                    buyVolums += Double.valueOf(buyVolumeString[i]);
+//                }
+//                for (int i = 0; i < sellVolumeString.length; i++) {
+//                    sellVolums += Double.valueOf(sellVolumeString[i]);
+//                }
+
+                //添加最新买卖数据
+                updateBuyVolume += "&&" + buyVolums;
+                updateSellVolume += "&&" + sellVolums;
+
             }
             transactionOrder.setCoinType(query);
-            transactionOrder.setBuyVolume(buyVolums + "&&" + transactionOrder.getBuyVolume());
-            transactionOrder.setSellVolume(sellVolums + "&&" + transactionOrder.getSellVolume());
+//            transactionOrder.setBuyVolume(buyVolums + "&&" + transactionOrder.getBuyVolume());
+//            transactionOrder.setSellVolume(sellVolums + "&&" + transactionOrder.getSellVolume());
+            transactionOrder.setBuyVolume(updateBuyVolume);
+            transactionOrder.setSellVolume(updateSellVolume);
             transactionOrder.setTimeStamp(new Date().getTime());
             transactionOrderDao.update(transactionOrder);
         }

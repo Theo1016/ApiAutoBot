@@ -10,6 +10,7 @@ import com.alpha.apiautobot.domain.response.huobipro.AccountBalance;
 import com.alpha.apiautobot.domain.response.huobipro.HRAccounts;
 import com.alpha.apiautobot.domain.response.huobipro.HRCoins;
 import com.alpha.apiautobot.domain.response.huobipro.HRSymbols;
+import com.alpha.apiautobot.domain.response.huobipro.MarketDepth;
 import com.alpha.apiautobot.domain.response.huobipro.MarketDetail;
 import com.alpha.apiautobot.domain.response.huobipro.PlaceOrdersResponse;
 import com.alpha.apiautobot.platform.AbstractPlatform;
@@ -25,6 +26,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -57,6 +59,11 @@ public class HuobiPro extends AbstractPlatform {
     public HuobiApiService apiService;
     public OkHttpClient httpClient;
     private ExecutorService mExecutor = Executors.newFixedThreadPool(200);
+
+    //连接是否完成
+    private volatile  boolean isConnected = false;
+
+    private List<CoinDepthRunnable> depthArray = new ArrayList<>();
 
     //交易对列表
     private Map<String, List<HRSymbols.Data>> symbolsMap = new HashMap<>();
@@ -92,6 +99,10 @@ public class HuobiPro extends AbstractPlatform {
                 .create(HuobiApiService.class);
     }
 
+    public boolean isConnected() {
+        return this.isConnected;
+    }
+
     @Override
     public void connection() {
         mExecutor.execute(new Runnable() {
@@ -105,19 +116,72 @@ public class HuobiPro extends AbstractPlatform {
                         for (HRSymbols.Data symbol : hrSymbols.data) {
                             String quoteCurrency = symbol.quoteCurrency;
                             if(!symbolsMap.containsKey(quoteCurrency)) {
-                                symbolsMap.put(quoteCurrency, new ArrayList<>());
+                                symbolsMap.put(quoteCurrency, new ArrayList<HRSymbols.Data>());
                             }
                             symbolsMap.get(quoteCurrency).add(symbol);
                         }
-                        getMarketList();
+                        synchronized (HuobiPro.class) {
+                            isConnected = true;
+                            HuobiPro.this.notifyAll();
+                        }
                     }else {
-
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         });
+        //开启一系列定时任务
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (HuobiPro.class) {
+                    if(!isConnected) {
+                        try {
+                            HuobiPro.this.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }finally {
+                            //获取交易对交易详情
+                            getMarketList();
+                        }
+                    }
+                }
+            }
+        });
+
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (HuobiPro.class) {
+                    if(!isConnected) {
+                        try {
+                            HuobiPro.this.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }finally {
+                            //获取交易对交易详情
+                            List<HRSymbols.Data> list = symbolsMap.get("btc");
+                            for (HRSymbols.Data data : list) {
+                                CoinDepthRunnable depthRunnable = new CoinDepthRunnable(HuobiPro.this.apiService, data.baseCurrency + data.quoteCurrency, 1);
+                                depthArray.add(depthRunnable);
+                                depthRunnable.run();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    public List<Map<Long, ArrayList<MarketDepth>>> getCoinDepths() {
+        synchronized (HuobiPro.class) {
+            List<Map<Long, ArrayList<MarketDepth>>> depths = new ArrayList<>();
+            for (CoinDepthRunnable runnable : depthArray) {
+                depths.add(runnable.getDepthMaps());
+            }
+            return depths;
+        }
     }
 
     @Override
@@ -131,14 +195,10 @@ public class HuobiPro extends AbstractPlatform {
         //获取BTC最新交易行情
         List<HRSymbols.Data> list = symbolsMap.get("btc");
         for (HRSymbols.Data data : list) {
-//            final String symbol = data.baseCurrency + data.quoteCurrency;
-//            if(data.baseCurrency.equals("ht")) {
-                final List<MarketDetail> details = new ArrayList<>();
-                coinDetails.add(details);
-                //请求市场详情
-                mExecutor.execute(new CoinIncreaseRunnable(data.baseCurrency + "/" + data.quoteCurrency, apiService, details));
-//                break;
-//            }
+            final List<MarketDetail> details = new ArrayList<>();
+            coinDetails.add(details);
+            //请求市场详情
+            mExecutor.execute(new CoinIncreaseRunnable(data.baseCurrency + "/" + data.quoteCurrency, apiService, details));
         }
     }
 
