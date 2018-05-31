@@ -5,6 +5,8 @@ import com.alpha.apiautobot.ApiAutoBotApplication;
 import com.alpha.apiautobot.base.Config;
 import com.alpha.apiautobot.domain.dao.kucoin.Market;
 import com.alpha.apiautobot.domain.dao.kucoin.MarketDao;
+import com.alpha.apiautobot.domain.dao.kucoin.TransactionOrder;
+import com.alpha.apiautobot.domain.dao.kucoin.TransactionOrderDao;
 import com.alpha.apiautobot.platform.binance.Binance;
 import com.alpha.apiautobot.platform.kucoin.KuCoin;
 
@@ -29,6 +31,7 @@ public class BotManager {
         kuCoin = new KuCoin();
         kuCoin.initRestful();
         monitoringRapidRiseAndFall();
+        monitoringBigCapital();
     }
 
     /**
@@ -41,18 +44,19 @@ public class BotManager {
             public void run() {
                 kuCoin.getMarketList();
             }
-        }, 5 * 1000,5*1000);
-        timer = new Timer();
+        }, 5 * 1000, 5 * 1000);
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                monitoring();
+                RapidRiseAndFall();
             }
-        }, 15 * 1000,15*1000);
-
+        }, 15 * 1000, 15 * 1000);
     }
 
-    private void monitoring() {
+    /**
+     * 计算快速涨跌
+     */
+    private void RapidRiseAndFall() {
         try {
             MarketDao marketDao = ApiAutoBotApplication.daoSession.getMarketDao();
             List<Market> markets = marketDao.loadAll();
@@ -66,18 +70,64 @@ public class BotManager {
                         for (int i = 0; i < lastDealPricesArray.length; i++) {
                             double absPrice = Math.abs((market.getLastDealPrice() - Double.valueOf(lastDealPricesArray[i])) / market.getLastDealPrice());
                             if (absPrice > 0.05) {//大于0.05%涨跌幅
-                                Log.i("Rapid Rise or Fall", market.getCoinType() + "/" + market.getCoinTypePair() + "rate:" + absPrice);
+                                Log.i("Rapid Rise or Fall", market.getCoinType() + "/" + market.getCoinTypePair() + " rate:" + (market.getLastDealPrice() - Double.valueOf(lastDealPricesArray[i])) / market.getLastDealPrice() + " time:" + (market.getDatetime() - Long.valueOf(timeStampsArray[i])));
                             }
                             if (absPrice > 0.1) {//大于1%涨跌幅
-                                Log.e("Rapid Rise or Fall", market.getCoinType() + "/" + market.getCoinTypePair() + "rate:" + absPrice);
+                                Log.e("Rapid Rise or Fall", market.getCoinType() + "/" + market.getCoinTypePair() + " rate:" + (market.getLastDealPrice() - Double.valueOf(lastDealPricesArray[i])) / market.getLastDealPrice() + " time:" + (market.getDatetime() - Long.valueOf(timeStampsArray[i])));
                             }
-
                         }
                     }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    /**
+     * 监控大量资金入场离场
+     */
+    public void monitoringBigCapital() {
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                kuCoin.getTick();
+            }
+        }, 5 * 1000, 5 * 1000);
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                BigCapital();
+            }
+        }, 15 * 1000, 15 * 1000);
+    }
+
+    /**
+     * 计算大量资金入场离场
+     */
+    private void BigCapital(){
+        TransactionOrderDao transactionOrderDao = ApiAutoBotApplication.daoSession.getTransactionOrderDao();
+        List<TransactionOrder> transactionOrders = transactionOrderDao.loadAll();
+        if(transactionOrders!=null && transactionOrders.size()>0){
+            for(TransactionOrder transactionOrder : transactionOrders){
+                String buyVolumes= transactionOrder.getBuyVolume();
+                String[] buyVolumesArray=buyVolumes.split("&&");
+                String sellVolume= transactionOrder.getSellVolume();
+                String[] sellVolumeArray=sellVolume.split("&&");
+                if(buyVolumesArray!=null&& sellVolumeArray!=null){
+                    double allBuyVolume=0;
+                    double allSellVolume=0;
+                    for(int i=0;i<buyVolumesArray.length;i++){
+                        allBuyVolume+=Double.valueOf(buyVolumesArray[i]);
+                    }
+                    for(int i=0;i<sellVolumeArray.length;i++){
+                        allSellVolume+=Double.valueOf(sellVolumeArray[i]);
+                    }
+                    if((allBuyVolume-allSellVolume)/(allBuyVolume+allSellVolume)>0.01){
+                            Log.i("BigCapital","CoinType:"+transactionOrder.getCoinType());
+                    }
+                }
+            }
         }
     }
 }

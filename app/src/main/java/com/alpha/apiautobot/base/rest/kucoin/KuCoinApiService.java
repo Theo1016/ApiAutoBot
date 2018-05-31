@@ -8,6 +8,7 @@ import com.alpha.apiautobot.domain.response.Order;
 import com.alpha.apiautobot.domain.response.binance.*;
 import com.alpha.apiautobot.domain.response.kucoin.BaseModel;
 import com.alpha.apiautobot.domain.response.kucoin.MarketModel;
+import com.alpha.apiautobot.domain.response.kucoin.TransactionOrderModel;
 import com.alpha.apiautobot.platform.binance.BinanceApiConstants;
 import retrofit2.Call;
 import retrofit2.http.*;
@@ -55,5 +56,15 @@ public interface KuCoinApiService {
      */
     @GET("/v1/market/open/symbols")
     Call<MarketModel> listTradingSymbolsMarkets(@Query("market") String market);
+
+    /**
+     * 挂单买卖记录
+     * @param symobl
+     * @param group
+     * @param limit
+     * @return
+     */
+    @GET("/v1/open/orders")
+    Call<TransactionOrderModel> requestOrders(@Query("symbol") String symobl, @Query("group")String group, @Query("limit")String limit);
 
 }
