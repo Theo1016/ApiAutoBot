@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -58,10 +59,11 @@ public class HuobiPro extends AbstractPlatform {
 
     public HuobiApiService apiService;
     public OkHttpClient httpClient;
-    private ExecutorService mExecutor = Executors.newFixedThreadPool(200);
+    private ExecutorService mExecutor = Executors.newCachedThreadPool();
 
     //连接是否完成
     private volatile  boolean isConnected = false;
+    private Object lock = new Object();
 
     private List<CoinDepthRunnable> depthArray = new ArrayList<>();
 
@@ -105,78 +107,82 @@ public class HuobiPro extends AbstractPlatform {
 
     @Override
     public void connection() {
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                Call<HRSymbols> call = apiService.getCommonSymbols();
-                try {
-                    Response<HRSymbols> response = call.execute();
-                    if(response.isSuccessful()) {
-                        HRSymbols hrSymbols = response.body();
-                        for (HRSymbols.Data symbol : hrSymbols.data) {
-                            String quoteCurrency = symbol.quoteCurrency;
-                            if(!symbolsMap.containsKey(quoteCurrency)) {
-                                symbolsMap.put(quoteCurrency, new ArrayList<HRSymbols.Data>());
-                            }
-                            symbolsMap.get(quoteCurrency).add(symbol);
-                        }
-                        synchronized (HuobiPro.class) {
-                            isConnected = true;
-                            HuobiPro.this.notifyAll();
-                        }
-                    }else {
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        //开启一系列定时任务
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (HuobiPro.class) {
-                    if(!isConnected) {
+            mExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (lock) {
+                        Call<HRSymbols> call = apiService.getCommonSymbols();
                         try {
-                            HuobiPro.this.wait();
-                        } catch (InterruptedException e) {
+                            Response<HRSymbols> response = call.execute();
+                            if (response.isSuccessful()) {
+                                HRSymbols hrSymbols = response.body();
+                                for (HRSymbols.Data symbol : hrSymbols.data) {
+                                    String quoteCurrency = symbol.quoteCurrency;
+                                    if (!symbolsMap.containsKey(quoteCurrency)) {
+                                        symbolsMap.put(quoteCurrency, new ArrayList<HRSymbols.Data>());
+                                    }
+                                    symbolsMap.get(quoteCurrency).add(symbol);
+                                }
+                                isConnected = true;
+                                lock.notifyAll();
+                            } else {
+                            }
+                        } catch (IOException e) {
                             e.printStackTrace();
-                        }finally {
-                            //获取交易对交易详情
-                            getMarketList();
                         }
                     }
                 }
-            }
-        });
+            });
+        //开启一系列定时任务
+//        mExecutor.execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                synchronized (lock) {
+//                    if(!isConnected) {
+//                        try {
+//                            lock.wait();
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }finally {
+//                        }
+//                    }
+//                }
+//
+//                //获取交易对交易详情
+//                getMarketList();
+//            }
+//        });
 
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                synchronized (HuobiPro.class) {
+                synchronized (lock) {
                     if(!isConnected) {
                         try {
-                            HuobiPro.this.wait();
+                            lock.wait();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }finally {
-                            //获取交易对交易详情
-                            List<HRSymbols.Data> list = symbolsMap.get("btc");
-                            for (HRSymbols.Data data : list) {
-                                CoinDepthRunnable depthRunnable = new CoinDepthRunnable(HuobiPro.this.apiService, data.baseCurrency + data.quoteCurrency, 1);
-                                depthArray.add(depthRunnable);
-                                depthRunnable.run();
-                            }
                         }
+                    }
+                }
+
+                //获取交易对交易详情
+                List<HRSymbols.Data> list = symbolsMap.get("btc");
+                for (HRSymbols.Data data : list) {
+                    if(data.baseCurrency.equals("ht")) {
+                        CoinDepthRunnable depthRunnable = new CoinDepthRunnable(HuobiPro.this.apiService, data.baseCurrency + data.quoteCurrency, 1);
+                        depthArray.add(depthRunnable);
+                        mExecutor.execute(depthRunnable);
                     }
                 }
             }
         });
     }
 
-    public List<Map<Long, ArrayList<MarketDepth>>> getCoinDepths() {
+    public List<Map<Long, CopyOnWriteArrayList<MarketDepth>>> getCoinDepths() {
         synchronized (HuobiPro.class) {
-            List<Map<Long, ArrayList<MarketDepth>>> depths = new ArrayList<>();
+            List<Map<Long, CopyOnWriteArrayList<MarketDepth>>> depths = new ArrayList<>();
             for (CoinDepthRunnable runnable : depthArray) {
                 depths.add(runnable.getDepthMaps());
             }

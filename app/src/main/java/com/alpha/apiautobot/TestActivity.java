@@ -15,6 +15,7 @@ import com.alpha.apiautobot.domain.response.huobipro.AccountBalance;
 import com.alpha.apiautobot.domain.response.huobipro.HRAccounts;
 import com.alpha.apiautobot.domain.response.huobipro.HRCoins;
 import com.alpha.apiautobot.domain.response.huobipro.HRSymbols;
+import com.alpha.apiautobot.domain.response.huobipro.MarketDepth;
 import com.alpha.apiautobot.domain.response.huobipro.MarketDetail;
 import com.alpha.apiautobot.domain.response.huobipro.PlaceOrdersResponse;
 import com.alpha.apiautobot.domain.response.okex.OrderHistoryResponse;
@@ -32,11 +33,13 @@ import com.google.gson.JsonObject;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import butterknife.BindView;
 import okhttp3.MediaType;
@@ -214,5 +217,10 @@ public class TestActivity extends AppCompatActivity implements CoinIncreaseView{
                 }
             }
         });
+    }
+
+    @Override
+    public void refreshDepth(List<Map<Long, CopyOnWriteArrayList<MarketDepth>>> depths) {
+
     }
 }
