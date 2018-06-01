@@ -101,7 +101,7 @@ public class CoinDepthAdapter extends RecyclerView.Adapter<CoinDepthAdapter.View
             holder.tv_asks_5min.setText(format.format(sellVolume));
 
             //计算涨幅
-            for (;i>=0 && i<= j;i--) {
+            for (;i>=0 && i>= j;i--) {
                 List<MarketDepth> depths1 = map.get(ts.get(i));
                 //取出第一个深度盘数据
                 MarketDepth depth1 = depths1.get(0);
