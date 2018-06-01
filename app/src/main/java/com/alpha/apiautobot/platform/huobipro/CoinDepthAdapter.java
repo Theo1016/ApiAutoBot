@@ -121,15 +121,15 @@ public class CoinDepthAdapter extends RecyclerView.Adapter<CoinDepthAdapter.View
                 if(k == 3) {
                     //近15min涨幅
                     holder.tv_bids_15min.setText((buyVolume > totalBuyVolume ? "+" : "-") + format.format(percent1 * 100) + "%");
-                    holder.tv_asks_15min.setText((buyVolume > totalBuyVolume ? "+" : "-") + format.format(percent2 * 100) + "%");
+                    holder.tv_asks_15min.setText((sellVolume > totalSellVolume ? "+" : "-") + format.format(percent2 * 100) + "%");
                 }else if(k == 6) {
                     //近30min涨幅
                     holder.tv_bids_30min.setText((buyVolume > totalBuyVolume ? "+" : "-") + format.format(percent1 * 100) + "%");
-                    holder.tv_asks_30min.setText((buyVolume > totalBuyVolume ? "+" : "-") + format.format(percent2 * 100) + "%");
+                    holder.tv_asks_30min.setText((sellVolume > totalSellVolume ? "+" : "-") + format.format(percent2 * 100) + "%");
                 }else if(k == 12) {
                     //近60min涨幅
                     holder.tv_bids_60min.setText((buyVolume > totalBuyVolume ? "+" : "-") + format.format(percent1 * 100) + "%");
-                    holder.tv_asks_60min.setText((buyVolume > totalBuyVolume ? "+" : "-") + format.format(percent2 * 100) + "%");
+                    holder.tv_asks_60min.setText((sellVolume > totalSellVolume ? "+" : "-") + format.format(percent2 * 100) + "%");
                 }
                 String buyP = (buyVolume > totalBuyVolume ? "+" : "-") + format.format(percent1 * 100) + "%";
                 String sellP = (sellVolume > totalSellVolume ? "+" : "-") + format.format(percent2 * 100) + "%";
