@@ -17,6 +17,7 @@ public class MarketDepth implements Serializable {
     private String ch;
     private long ts;
     private TickBean tick;
+    public String symbol;
 
     public String getStatus() {
         return status;

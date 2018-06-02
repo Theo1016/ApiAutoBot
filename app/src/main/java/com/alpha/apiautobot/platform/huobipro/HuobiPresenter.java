@@ -2,6 +2,7 @@ package com.alpha.apiautobot.platform.huobipro;
 
 import com.alpha.apiautobot.domain.response.huobipro.MarketDetail;
 
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +21,12 @@ public class HuobiPresenter {
             List<List<MarketDetail>> list = new ArrayList<>();
             list.addAll(huobiPro.getCoinDetails());
             mView.refreshView(list);
+        }
+    }
+
+    public void requestCoinDepth() {
+        if(mView != null) {
+            mView.refreshDepth(huobiPro.getCoinDepths());
         }
     }
 }

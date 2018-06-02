@@ -7,9 +7,11 @@ import com.alpha.apiautobot.domain.response.huobipro.MarketDepth;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -30,7 +32,7 @@ public class CoinDepthRunnable implements Runnable {
     final String symbol;
     final String step;
     final HuobiApiService apiService;
-    final LinkedHashMap<Long, ArrayList<MarketDepth>> depthMaps = new LinkedHashMap<>();
+    final Map<Long, CopyOnWriteArrayList<MarketDepth>> depthMaps = Collections.synchronizedMap(new LinkedHashMap<Long, CopyOnWriteArrayList<MarketDepth>>());
 
     public CoinDepthRunnable(HuobiApiService apiService, String symbol, int step) {
         this.apiService = apiService;
@@ -38,7 +40,7 @@ public class CoinDepthRunnable implements Runnable {
         this.step = "step" + step;
     }
 
-    public Map<Long, ArrayList<MarketDepth>> getDepthMaps() {
+    public Map<Long, CopyOnWriteArrayList<MarketDepth>> getDepthMaps() {
         return this.depthMaps;
     }
 
@@ -60,12 +62,13 @@ public class CoinDepthRunnable implements Runnable {
 
                 Long ts = depth.getTick().getTs();
                 if(depthMaps.isEmpty()) {
-                    ArrayList<MarketDepth> depths = new ArrayList<>();
+                    depth.symbol = symbol;
+                    CopyOnWriteArrayList<MarketDepth> depths = new CopyOnWriteArrayList<>();
                     depths.add(depth);
                     depthMaps.put(ts, depths);
                     first = curosr = ts;
                 }else {
-                    if(ts - curosr > TIME_GAP) {
+                    if((ts - curosr)/ 1000 > TIME_GAP) {
                         if(depthMaps.size() == MAX_TIME_STATS / TIME_GAP) {
                             //统计队列已满
                             depthMaps.remove(first);
@@ -73,7 +76,7 @@ public class CoinDepthRunnable implements Runnable {
                             Set<Long> set = depthMaps.keySet();
                             first = set.iterator().next();
                         }
-                        ArrayList<MarketDepth> depths = new ArrayList<>();
+                        CopyOnWriteArrayList<MarketDepth> depths = new CopyOnWriteArrayList<>();
                         depths.add(depth);
                         depthMaps.put(ts, depths);
                         //指向新的统计时间点

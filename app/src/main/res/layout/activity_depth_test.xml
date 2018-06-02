@@ -13,32 +13,37 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="交易对"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:textColor="@android:color/black"/>
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="5min"
-            android:gravity="center"/>
+            android:text="最新Vol"
+            android:gravity="center"
+            android:textColor="@android:color/black"/>
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="15min"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:textColor="@android:color/black"/>
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="30min"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:textColor="@android:color/black"/>
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="60min"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:textColor="@android:color/black"/>
 
     </LinearLayout>
     <android.support.v7.widget.RecyclerView
