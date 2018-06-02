@@ -1,7 +1,6 @@
 package com.alpha.apiautobot.platform.binance.presenter;
 
 import com.alpha.apiautobot.domain.request.NewOrder;
-import retrofit2.http.Query;
 
 /**
  * Created by Theo on 2018/5/19.

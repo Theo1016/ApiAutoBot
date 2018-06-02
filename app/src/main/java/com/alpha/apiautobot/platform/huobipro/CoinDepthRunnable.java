@@ -1,6 +1,7 @@
 package com.alpha.apiautobot.platform.huobipro;
 
 import android.database.Cursor;
+import android.util.Log;
 
 import com.alpha.apiautobot.base.rest.huobipro.HuobiApiService;
 import com.alpha.apiautobot.domain.response.huobipro.MarketDepth;
@@ -60,7 +61,7 @@ public class CoinDepthRunnable implements Runnable {
                     return;
                 }
 
-                Long ts = depth.getTick().getTs();
+                Long ts = depth.getTs()/*depth.getTick().getTs()*/;
                 if(depthMaps.isEmpty()) {
                     depth.symbol = symbol;
                     CopyOnWriteArrayList<MarketDepth> depths = new CopyOnWriteArrayList<>();
@@ -87,9 +88,11 @@ public class CoinDepthRunnable implements Runnable {
                 }
                 Thread.sleep(5000);
             }catch (IOException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
+                Log.w("Depth", "request " + symbol + " depth network error!");
             }catch (InterruptedException e) {
                 e.printStackTrace();
+                Log.w("Depth", "request " + symbol + " depth sleep error!");
             }
         }
     }

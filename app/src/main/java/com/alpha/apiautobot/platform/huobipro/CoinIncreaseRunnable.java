@@ -1,14 +1,10 @@
 package com.alpha.apiautobot.platform.huobipro;
-
-import android.os.Debug;
 import android.util.Log;
 
 import com.alpha.apiautobot.base.rest.huobipro.HuobiApiService;
 import com.alpha.apiautobot.domain.response.huobipro.MarketDetail;
 
 import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;

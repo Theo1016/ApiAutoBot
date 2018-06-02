@@ -1,12 +1,13 @@
 package com.alpha.apiautobot;
 
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.EditText;
 import butterknife.BindView;
 import com.alpha.apiautobot.bot.BotManager;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends FragmentActivity {
 
     @BindView(R.id.binance_key_et)
     EditText binance_key_et;

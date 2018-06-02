@@ -15,6 +15,7 @@ import java.util.List;
  * </pre>
  */
 public class BatchOrdersCancel implements Serializable {
+    private static final long serialVersionUID = 3198628483934597371L;
     @SerializedName("order-ids")
     public List<String> orderIds;
 

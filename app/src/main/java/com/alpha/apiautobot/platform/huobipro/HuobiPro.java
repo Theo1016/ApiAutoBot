@@ -24,6 +24,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -169,12 +171,18 @@ public class HuobiPro extends AbstractPlatform {
 
                 //获取交易对交易详情
                 List<HRSymbols.Data> list = symbolsMap.get("btc");
+                Collections.sort(list, new Comparator<HRSymbols.Data>() {
+                    @Override
+                    public int compare(HRSymbols.Data o1, HRSymbols.Data o2) {
+                        return o1.baseCurrency.compareTo(o2.baseCurrency);
+                    }
+                });
                 for (HRSymbols.Data data : list) {
-                    if(data.baseCurrency.equals("ht")) {
+//                    if(data.baseCurrency.equals("ht")) {
                         CoinDepthRunnable depthRunnable = new CoinDepthRunnable(HuobiPro.this.apiService, data.baseCurrency + data.quoteCurrency, 1);
                         depthArray.add(depthRunnable);
                         mExecutor.execute(depthRunnable);
-                    }
+//                    }
                 }
             }
         });

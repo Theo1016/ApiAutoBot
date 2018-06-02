@@ -6,6 +6,7 @@ import java.util.List;
 
 public class MarketDepth implements Serializable {
 
+    private static final long serialVersionUID = 328103766833150071L;
     /**
      * status : ok
      * ch : market.btcusdt.depth.step1

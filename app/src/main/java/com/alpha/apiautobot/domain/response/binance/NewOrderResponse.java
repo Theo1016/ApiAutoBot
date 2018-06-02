@@ -6,7 +6,6 @@ import com.alpha.apiautobot.domain.request.binance.OrderType;
 import com.alpha.apiautobot.domain.request.binance.TimeInForce;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Response returned when placing a new order on the system.
