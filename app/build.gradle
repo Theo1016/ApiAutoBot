@@ -48,4 +48,8 @@ dependencies {
     compile 'com.google.code.gson:gson:2.7'
     compile 'org.greenrobot:greendao:3.2.2' // add library
     compile 'com.android.support:recyclerview-v7:26.1.0'
+
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.2.+'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.2.+'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.2.+'
 }
