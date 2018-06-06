@@ -26,7 +26,9 @@ android {
         schemaVersion 6
         targetGenDir 'src/main/java'
     }
-
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+    }
 }
 
 dependencies {
