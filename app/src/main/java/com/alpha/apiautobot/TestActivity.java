@@ -205,7 +205,7 @@ public class TestActivity extends AppCompatActivity implements CoinIncreaseView{
     private CoinIncreaseAdapter mAdapter;
 
     @Override
-    public void refreshView(List<List<MarketDetail>> coinDetails) {
+    public void refreshView(final List<List<MarketDetail>> coinDetails) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

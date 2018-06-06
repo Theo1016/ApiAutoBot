@@ -53,7 +53,7 @@ public class DepthTestActivity extends FragmentActivity implements CoinIncreaseV
     }
 
     @Override
-    public void refreshDepth(List<Map<Long, CopyOnWriteArrayList<MarketDepth>>> depths) {
+    public void refreshDepth(final List<Map<Long, CopyOnWriteArrayList<MarketDepth>>> depths) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
