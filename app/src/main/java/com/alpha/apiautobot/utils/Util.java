@@ -12,8 +12,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * Created by Theo on 2018/5/17.
@@ -181,4 +180,9 @@ public class Util {
         return sb.toString();
     }
 
+    // 数组去重，顺序无关
+    public static String[] arrayUnique(String[] a) {
+        Set<String> set = new HashSet<String>(Arrays.asList(a));
+        return set.toArray(new String[0]);
+    }
 }
