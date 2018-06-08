@@ -5,7 +5,7 @@ import com.alpha.apiautobot.domain.request.binance.OrderSide;
 import com.alpha.apiautobot.domain.request.binance.OrderType;
 import com.alpha.apiautobot.domain.request.binance.TimeInForce;
 import com.alpha.apiautobot.domain.response.*;
-import com.alpha.apiautobot.domain.response.binance.*;
+import com.alpha.apiautobot.domain.response.binance.rest.*;
 import com.alpha.apiautobot.platform.binance.BinanceApiConstants;
 import retrofit2.Call;
 import retrofit2.http.*;

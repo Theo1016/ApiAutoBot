@@ -115,16 +115,17 @@ public class BotManager {
                 String sellVolume= transactionOrder.getSellVolume();
                 String[] sellVolumeArray=sellVolume.split("&&");
                 if(buyVolumesArray!=null&& sellVolumeArray!=null){
-                    double allBuyVolume=0;
-                    double allSellVolume=0;
                     for(int i=0;i<buyVolumesArray.length;i++){
-                        allBuyVolume+=Double.valueOf(buyVolumesArray[i]);
+                        if(i>=1) {
+                            double bigMoney = Double.valueOf(buyVolumesArray[i]) - Double.valueOf(buyVolumesArray[i - 1]) / Double.valueOf(buyVolumesArray[i]);
+                            if(bigMoney>0.01) Log.i("BigCapital BUY", "CoinType:" + transactionOrder.getCoinType()+"bigMoney:"+bigMoney*100+"%");
+                        }
                     }
                     for(int i=0;i<sellVolumeArray.length;i++){
-                        allSellVolume+=Double.valueOf(sellVolumeArray[i]);
-                    }
-                    if((allBuyVolume-allSellVolume)/(allBuyVolume+allSellVolume)>0.01){
-                            Log.i("BigCapital","CoinType:"+transactionOrder.getCoinType());
+                        if(i>=1) {
+                            double bigMoney = Double.valueOf(sellVolumeArray[i]) - Double.valueOf(sellVolumeArray[i - 1]) / Double.valueOf(sellVolumeArray[i]);
+                            if(bigMoney>0.01) Log.i("BigCapital SELL", "CoinType:" + transactionOrder.getCoinType()+"bigMoney:"+bigMoney*100+"%");
+                        }
                     }
                 }
             }
