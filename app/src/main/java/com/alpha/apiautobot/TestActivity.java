@@ -3,6 +3,7 @@ package com.alpha.apiautobot;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,6 +26,8 @@ import com.alpha.apiautobot.platform.huobipro.CoinIncreaseAdapter;
 import com.alpha.apiautobot.platform.huobipro.CoinIncreaseView;
 import com.alpha.apiautobot.platform.huobipro.HuobiPresenter;
 import com.alpha.apiautobot.platform.huobipro.HuobiPro;
+import com.alpha.apiautobot.platform.huobipro.HuobiSocket;
+import com.alpha.apiautobot.platform.huobipro.HuobiSocketClient;
 import com.alpha.apiautobot.platform.okex.OKExClient;
 import com.alpha.apiautobot.utils.ApiSignature;
 import com.google.gson.Gson;
@@ -49,7 +52,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class TestActivity extends AppCompatActivity implements CoinIncreaseView{
+public class TestActivity extends FragmentActivity implements CoinIncreaseView{
 
     private RecyclerView recyclerView;
     private HuobiPresenter mPresenter;
@@ -169,15 +172,18 @@ public class TestActivity extends AppCompatActivity implements CoinIncreaseView{
 //                    }
 //                });
 
-        recyclerView = findViewById(R.id.recyclerview);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mPresenter = new HuobiPresenter(this);
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                mPresenter.requestCoinDetails();
-            }
-        }, 1000, 5000);
+//        recyclerView = findViewById(R.id.recyclerview);
+//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+//        mPresenter = new HuobiPresenter(this);
+//        new Timer().schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                mPresenter.requestCoinDetails();
+//            }
+//        }, 1000, 5000);
+        HuobiSocketClient client = new HuobiSocketClient();
+        client.connection();
+
     }
 
     private void placeOrders(HRAccounts.DataBean dataBean) {
