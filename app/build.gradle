@@ -11,9 +11,9 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        jackOptions {
-            enabled true
-        }
+//        jackOptions {
+//            enabled true
+//        }
     }
     buildTypes {
         release {
@@ -23,12 +23,23 @@ android {
     }
 
     greendao{
-        schemaVersion 6
+        schemaVersion 7
         targetGenDir 'src/main/java'
     }
+
     packagingOptions {
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
         exclude 'META-INF/LICENSE'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/dependencies.txt'
+        exclude 'META-INF/LGPL2.1'
     }
+
 }
 
 dependencies {
@@ -51,7 +62,7 @@ dependencies {
     compile 'org.greenrobot:greendao:3.2.2' // add library
     compile 'com.android.support:recyclerview-v7:26.1.0'
 
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.2.+'
-    compile 'com.fasterxml.jackson.core:jackson-core:2.2.+'
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.2.+'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.5'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.5'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.8.5'
 }

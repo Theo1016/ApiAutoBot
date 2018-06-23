@@ -8,6 +8,7 @@ import okhttp3.Request;
 import okhttp3.WebSocket;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -53,15 +54,18 @@ public class BinanceApiWebSocketClientImpl implements BinanceApiWebSocketClient,
         client.dispatcher().executorService().shutdown();
     }
 
-    private Closeable createNewWebSocket(String channel, BinanceApiWebSocketListener<?> listener) {
+    private Closeable createNewWebSocket(String channel, final BinanceApiWebSocketListener<?> listener) {
         String streamingUrl = String.format("%s/%s", BinanceApiConstants.WS_API_BASE_URL, channel);
         Request request = new Request.Builder().url(streamingUrl).build();
         final WebSocket webSocket = client.newWebSocket(request, listener);
-        return () -> {
-            final int code = 1000;
-            listener.onClosing(webSocket, code, null);
-            webSocket.close(code, null);
-            listener.onClosed(webSocket, code, null);
+        return new Closeable() {
+            @Override
+            public void close() throws IOException {
+                final int code = 1000;
+                listener.onClosing(webSocket, code, null);
+                webSocket.close(code, null);
+                listener.onClosed(webSocket, code, null);
+            }
         };
     }
 }
