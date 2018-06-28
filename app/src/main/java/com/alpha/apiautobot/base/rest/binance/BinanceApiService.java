@@ -207,4 +207,7 @@ public interface BinanceApiService {
     @Headers(BinanceApiConstants.ENDPOINT_SECURITY_TYPE_APIKEY_HEADER)
     @DELETE("/api/v1/userDataStream")
     Call<Void> closeAliveUserDataStream(@Query("listenKey") String listenKey);
+
+    @GET("https://support.binance.com/hc/en-us/sections/115000106672-New-Listings?page=1")
+    Call<String> supportNewList();
 }

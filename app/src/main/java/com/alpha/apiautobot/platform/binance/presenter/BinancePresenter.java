@@ -78,6 +78,7 @@ public class BinancePresenter implements BinanceContract.Presenter {
                 okhttp3.Response res = response.raw();
                 if (res.isSuccessful()) {
                     try {
+                        mBinanceContractView.exchangeInfoCallback(response.body());
                         mBinanceContractView.serverTimeCallback();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -186,5 +187,28 @@ public class BinancePresenter implements BinanceContract.Presenter {
         });
     }
 
+    @Override
+    public void supportNewList() {
+        Call<String> call = BinanceApiClient.service.supportNewList();
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                okhttp3.Response res = response.raw();
+                if (res.isSuccessful()) {
+                    try {
+                        mBinanceContractView.supportNewListCallback(response.body());
+                        mBinanceContractView.serverTimeCallback();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+    }
 
 }
