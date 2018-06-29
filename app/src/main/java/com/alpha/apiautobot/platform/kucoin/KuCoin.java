@@ -42,7 +42,7 @@ public class KuCoin extends AbstractPlatform implements KuCoinContract.View {
 //        mKuCoinPresenter.getTick("KCS-BTC");
 //        mKuCoinPresenter.listActiveOrders("KCS-BTC","BUY");
 //        mKuCoinPresenter.listTradingMarkets();
-        getMarketList();
+//        getMarketList();
     }
 
     @Override

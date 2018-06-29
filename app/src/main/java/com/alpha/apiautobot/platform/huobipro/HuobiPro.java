@@ -35,6 +35,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -108,82 +110,63 @@ public class HuobiPro extends AbstractPlatform {
 
     @Override
     public void connection() {
-//        mExecutor.execute(()-> {
-//            synchronized (lock) {
-//                Call<HRSymbols> call = apiService.getCommonSymbols();
-//                try {
-//                    Response<HRSymbols> response = call.execute();
-//                    if (response.isSuccessful()) {
-//                        HRSymbols hrSymbols = response.body();
-////                        for (HRSymbols.Data symbol : hrSymbols.data) {
-////                            String quoteCurrency = symbol.quoteCurrency;
-////                            if (!symbolsMap.containsKey(quoteCurrency)) {
-////                                symbolsMap.put(quoteCurrency, new ArrayList<HRSymbols.Data>());
-////                            }
-////                            symbolsMap.get(quoteCurrency).add(symbol);
-////                        }
-//                        hrSymbols.data.parallelStream().forEach(symbol -> {
+        mExecutor.execute(()-> {
+            synchronized (lock) {
+                Call<HRSymbols> call = apiService.getCommonSymbols();
+                try {
+                    Response<HRSymbols> response = call.execute();
+                    if (response.isSuccessful()) {
+                        HRSymbols hrSymbols = response.body();
+//                        for (HRSymbols.Data symbol : hrSymbols.data) {
 //                            String quoteCurrency = symbol.quoteCurrency;
 //                            if (!symbolsMap.containsKey(quoteCurrency)) {
 //                                symbolsMap.put(quoteCurrency, new ArrayList<HRSymbols.Data>());
 //                            }
 //                            symbolsMap.get(quoteCurrency).add(symbol);
-//                        });
-//                        isConnected = true;
-//                        lock.notifyAll();
-//                    } else {
+//                        }
+                        hrSymbols.data.parallelStream().forEach(symbol -> {
+                            String quoteCurrency = symbol.quoteCurrency;
+                            if (!symbolsMap.containsKey(quoteCurrency)) {
+                                symbolsMap.put(quoteCurrency, new ArrayList<HRSymbols.Data>());
+                            }
+                            symbolsMap.get(quoteCurrency).add(symbol);
+                        });
+                        isConnected = true;
+                        lock.notifyAll();
+                    } else {
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+//            mExecutor.execute(new Runnable() {
+//                @Override
+//                public void run() {
+//                    synchronized (lock) {
+//                        Call<HRSymbols> call = apiService.getCommonSymbols();
+//                        try {
+//                            Response<HRSymbols> response = call.execute();
+//                            if (response.isSuccessful()) {
+//                                HRSymbols hrSymbols = response.body();
+//                                for (HRSymbols.Data symbol : hrSymbols.data) {
+//                                    String quoteCurrency = symbol.quoteCurrency;
+//                                    if (!symbolsMap.containsKey(quoteCurrency)) {
+//                                        symbolsMap.put(quoteCurrency, new ArrayList<HRSymbols.Data>());
+//                                    }
+//                                    symbolsMap.get(quoteCurrency).add(symbol);
+//                                }
+//                                isConnected = true;
+//                                lock.notifyAll();
+//                            } else {
+//                            }
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
 //                    }
-//                } catch (IOException e) {
-//                    e.printStackTrace();
 //                }
-//            }
-//        });
-////            mExecutor.execute(new Runnable() {
-////                @Override
-////                public void run() {
-////                    synchronized (lock) {
-////                        Call<HRSymbols> call = apiService.getCommonSymbols();
-////                        try {
-////                            Response<HRSymbols> response = call.execute();
-////                            if (response.isSuccessful()) {
-////                                HRSymbols hrSymbols = response.body();
-////                                for (HRSymbols.Data symbol : hrSymbols.data) {
-////                                    String quoteCurrency = symbol.quoteCurrency;
-////                                    if (!symbolsMap.containsKey(quoteCurrency)) {
-////                                        symbolsMap.put(quoteCurrency, new ArrayList<HRSymbols.Data>());
-////                                    }
-////                                    symbolsMap.get(quoteCurrency).add(symbol);
-////                                }
-////                                isConnected = true;
-////                                lock.notifyAll();
-////                            } else {
-////                            }
-////                        } catch (IOException e) {
-////                            e.printStackTrace();
-////                        }
-////                    }
-////                }
-////            });
-//        //开启一系列定时任务
-////        mExecutor.execute(new Runnable() {
-////            @Override
-////            public void run() {
-////                synchronized (lock) {
-////                    if(!isConnected) {
-////                        try {
-////                            lock.wait();
-////                        } catch (InterruptedException e) {
-////                            e.printStackTrace();
-////                        }finally {
-////                        }
-////                    }
-////                }
-////
-////                //获取交易对交易详情
-////                getMarketList();
-////            }
-////        });
-//
+//            });
+        //开启一系列定时任务
 //        mExecutor.execute(new Runnable() {
 //            @Override
 //            public void run() {
@@ -199,29 +182,48 @@ public class HuobiPro extends AbstractPlatform {
 //                }
 //
 //                //获取交易对交易详情
-//                List<HRSymbols.Data> list = symbolsMap.get("btc");
-////                Collections.sort(list, new Comparator<HRSymbols.Data>() {
-////                    @Override
-////                    public int compare(HRSymbols.Data o1, HRSymbols.Data o2) {
-////                        return o1.baseCurrency.compareTo(o2.baseCurrency);
-////                    }
-////                });
-//                list.sort((o1,o2) -> o1.baseCurrency.compareTo(o2.baseCurrency));
-//
-////                for (HRSymbols.Data data : list) {
-//////                    if(data.baseCurrency.equals("ht")) {
-////                        CoinDepthRunnable depthRunnable = new CoinDepthRunnable(HuobiPro.this.apiService, data.baseCurrency + data.quoteCurrency, 1);
-////                        depthArray.add(depthRunnable);
-////                        mExecutor.execute(depthRunnable);
-//////                    }
-////                }
-//                list.forEach((data) -> {
+//                getMarketList();
+//            }
+//        });
+
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (lock) {
+                    if(!isConnected) {
+                        try {
+                            lock.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }finally {
+                        }
+                    }
+                }
+
+                //获取交易对交易详情
+                List<HRSymbols.Data> list = symbolsMap.get("btc");
+//                Collections.sort(list, new Comparator<HRSymbols.Data>() {
+//                    @Override
+//                    public int compare(HRSymbols.Data o1, HRSymbols.Data o2) {
+//                        return o1.baseCurrency.compareTo(o2.baseCurrency);
+//                    }
+//                });
+                list.sort((o1,o2) -> o1.baseCurrency.compareTo(o2.baseCurrency));
+
+//                for (HRSymbols.Data data : list) {
+////                    if(data.baseCurrency.equals("ht")) {
 //                        CoinDepthRunnable depthRunnable = new CoinDepthRunnable(HuobiPro.this.apiService, data.baseCurrency + data.quoteCurrency, 1);
 //                        depthArray.add(depthRunnable);
 //                        mExecutor.execute(depthRunnable);
-//                        });
-//            }
-//        });
+////                    }
+//                }
+                list.forEach((data) -> {
+                        CoinDepthRunnable depthRunnable = new CoinDepthRunnable(HuobiPro.this.apiService, data.baseCurrency + data.quoteCurrency, 1);
+                        depthArray.add(depthRunnable);
+                        mExecutor.execute(depthRunnable);
+                        });
+            }
+        });
     }
 
     public List<Map<Long, CopyOnWriteArrayList<MarketDepth>>> getCoinDepths() {
@@ -241,22 +243,22 @@ public class HuobiPro extends AbstractPlatform {
 
     @Override
     public void getMarketList() {
-//        //获取指定交易对行情
-//        //获取BTC最新交易行情
-//        List<HRSymbols.Data> list = symbolsMap.get("btc");
-////        for (HRSymbols.Data data : list) {
-////            final List<MarketDetail> details = new ArrayList<>();
-////            coinDetails.add(details);
-////            //请求市场详情
-////            mExecutor.execute(new CoinIncreaseRunnable(data.baseCurrency + "/" + data.quoteCurrency, apiService, details));
-////        }
-//        list.forEach((data -> {
+        //获取指定交易对行情
+        //获取BTC最新交易行情
+        List<HRSymbols.Data> list = symbolsMap.get("btc");
+//        for (HRSymbols.Data data : list) {
 //            final List<MarketDetail> details = new ArrayList<>();
 //            coinDetails.add(details);
 //            //请求市场详情
 //            mExecutor.execute(new CoinIncreaseRunnable(data.baseCurrency + "/" + data.quoteCurrency, apiService, details));
-//
-//        }));
+//        }
+        list.forEach((data -> {
+            final List<MarketDetail> details = new ArrayList<>();
+            coinDetails.add(details);
+            //请求市场详情
+            mExecutor.execute(new CoinIncreaseRunnable(data.baseCurrency + "/" + data.quoteCurrency, apiService, details));
+
+        }));
     }
 
     public List<List<MarketDetail>> getCoinDetails() {
