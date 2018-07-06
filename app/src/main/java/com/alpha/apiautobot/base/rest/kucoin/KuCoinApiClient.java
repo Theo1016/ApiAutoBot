@@ -27,14 +27,16 @@ public final class KuCoinApiClient {
 
     public static void CreateApiService(String url,OkHttpClient okHttpClient){
         BASE_URL = url;
-        service = new Retrofit.Builder()
-                .baseUrl(url)
-                .client(okHttpClient)
-                .addConverterFactory(ScalarsConverterFactory.create())
-                .addConverterFactory(CustomGsonConverterFactory.create(new GsonBuilder()
-                        .create()))
-                .build()
-                .create(KuCoinApiService.class);
+        if(service==null) {
+            service = new Retrofit.Builder()
+                    .baseUrl(url)
+                    .client(okHttpClient)
+                    .addConverterFactory(ScalarsConverterFactory.create())
+                    .addConverterFactory(CustomGsonConverterFactory.create(new GsonBuilder()
+                            .create()))
+                    .build()
+                    .create(KuCoinApiService.class);
+        };
     }
 
     public static OkHttpClient genericClient(Interceptor interceptor) {

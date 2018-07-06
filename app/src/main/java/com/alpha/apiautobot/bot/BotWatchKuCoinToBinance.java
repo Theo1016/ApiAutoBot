@@ -40,7 +40,7 @@ public class BotWatchKuCoinToBinance {
             public void run() {
                 kuCoin.getMarketList();
             }
-        }, 15 * 1000, 15 * 1000);
+        }, 0 * 1000, 1000);
         timer.schedule(new TimerTask() {
             @Override
             public void run() {

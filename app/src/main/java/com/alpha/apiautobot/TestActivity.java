@@ -11,11 +11,7 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.alpha.apiautobot.domain.request.huobipro.PlaceOrders;
-import com.alpha.apiautobot.domain.request.okex.OrderHistoryRequest;
-import com.alpha.apiautobot.domain.response.huobipro.AccountBalance;
 import com.alpha.apiautobot.domain.response.huobipro.HRAccounts;
-import com.alpha.apiautobot.domain.response.huobipro.HRCoins;
-import com.alpha.apiautobot.domain.response.huobipro.HRSymbols;
 import com.alpha.apiautobot.domain.response.huobipro.MarketDepth;
 import com.alpha.apiautobot.domain.response.huobipro.MarketDetail;
 import com.alpha.apiautobot.domain.response.huobipro.PlaceOrdersResponse;

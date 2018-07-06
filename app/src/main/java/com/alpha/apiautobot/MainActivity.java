@@ -8,7 +8,7 @@ import butterknife.BindView;
 import com.alpha.apiautobot.bot.BotManager;
 import com.alpha.apiautobot.bot.BotWatchKuCoinToBinance;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.binance_key_et)
     EditText binance_key_et;
