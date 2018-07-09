@@ -7,13 +7,15 @@ import com.alpha.apiautobot.base.Config;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Created by Theo on 2018/5/17.
@@ -179,6 +181,40 @@ public class Util {
         }
         sb.replace(sb.length()-2,sb.length(),"");
         return sb.toString();
+    }
+
+    // 数组去重，顺序无关
+    public static String[] arrayUnique(String[] a) {
+        Set<String> set = new HashSet<String>(Arrays.asList(a));
+        return set.toArray(new String[0]);
+    }
+
+    public static int getNumCores() {
+        //Private Class to display only CPU devices in the directory listing
+        class CpuFilter implements FileFilter {
+            @Override
+            public boolean accept(File pathname) {
+                //Check if filename is "cpu", followed by a single digit number
+                if(Pattern.matches("cpu[0-9]", pathname.getName())) {
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        try {
+            //Get directory containing CPU info
+            File dir = new File("/sys/devices/system/cpu/");
+            //Filter to only list the devices we care about
+            File[] files = dir.listFiles(new CpuFilter());
+            //Return the number of cores (virtual CPU devices)
+            return files.length;
+        } catch(Exception e) {
+            //Print exception
+            e.printStackTrace();
+            //Default to return 1 core
+            return 1;
+        }
     }
 
 }
