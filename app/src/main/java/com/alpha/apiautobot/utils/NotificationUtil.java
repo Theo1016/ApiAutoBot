@@ -1,9 +1,12 @@
 package com.alpha.apiautobot.utils;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
+
+import com.alpha.apiautobot.ApiAutoBotApplication;
 
 import java.lang.ref.WeakReference;
 
@@ -50,5 +53,14 @@ public class NotificationUtil {
 //                .setLargeIcon(BitmapFactory.decodeResource(KucoinApp.getAppContext().getResources(), R.drawable.kucoin_icon))
                 .setAutoCancel(true)
                 .setDefaults(NotificationCompat.DEFAULT_ALL);
+    }
+
+    public static void notification(String title, String text) {
+        Notification notification = NotificationUtil.getInstance(ApiAutoBotApplication.getContextObject())
+                .createNotificationChannel(title, text,"api_auto_bot")
+                .build();
+        NotificationManager manager = (NotificationManager)ApiAutoBotApplication.getContextObject()
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.notify(text.hashCode(), notification);
     }
 }

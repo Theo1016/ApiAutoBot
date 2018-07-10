@@ -8,6 +8,7 @@ import com.alpha.apiautobot.domain.dao.kucoin.MarketDao;
 import com.alpha.apiautobot.domain.dao.kucoin.TransactionOrder;
 import com.alpha.apiautobot.domain.dao.kucoin.TransactionOrderDao;
 import com.alpha.apiautobot.platform.binance.Binance;
+import com.alpha.apiautobot.platform.huobipro.HuobiPro;
 import com.alpha.apiautobot.platform.kucoin.KuCoin;
 import com.alpha.apiautobot.utils.Util;
 
@@ -33,6 +34,11 @@ public class BotManager {
         kuCoin.initRestful();
         monitoringRapidRiseAndFall();
         monitoringBigCapital();
+
+
+        //启动火币
+        HuobiPro huobiPro = new HuobiPro();
+        huobiPro.connection();
     }
 
     /**

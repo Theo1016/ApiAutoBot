@@ -96,7 +96,7 @@ public class BotWatchKuCoinToBinance {
                 if (willList.size() > 0) {
                     for (String coin : willList) {
                         Log.i(logTag, "Binance will list 【"+coin+"】that has listed on KuCoin");
-                        sendNotification("上币公告", "Binance平台将上新币:" + coin);
+                        NotificationUtil.notification("上币公告", "Binance平台将上新币:" + coin);
                     }
                 } else {
                     Log.i(logTag, "Binance will list empty");
@@ -107,15 +107,6 @@ public class BotWatchKuCoinToBinance {
         } else {
             Log.i(logTag, "Binance coin uniqueList or willList empty");
         }
-    }
-
-    private void sendNotification(String title, String text) {
-        Notification notification = NotificationUtil.getInstance(ApiAutoBotApplication.getContextObject())
-                .createNotificationChannel(title, text,"DIFFERENT_KUCOIN_BINANCE")
-                .build();
-        NotificationManager manager = (NotificationManager)ApiAutoBotApplication.getContextObject()
-                .getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(text.hashCode(), notification);
     }
 
 }
