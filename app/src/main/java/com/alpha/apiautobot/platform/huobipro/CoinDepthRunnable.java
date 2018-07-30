@@ -62,20 +62,20 @@ public class CoinDepthRunnable implements Runnable {
                 }
 
                 MarketDepth depth = response.body();
-                if(!depth.getStatus().equals("ok")) {
+                if (!depth.getStatus().equals("ok")) {
                     return;
                 }
 
                 Long ts = depth.getTs()/*depth.getTick().getTs()*/;
-                if(depthMaps.isEmpty()) {
+                if (depthMaps.isEmpty()) {
                     depth.symbol = symbol;
                     CopyOnWriteArrayList<MarketDepth> depths = new CopyOnWriteArrayList<>();
                     depths.add(depth);
                     depthMaps.put(ts, depths);
                     first = curosr = ts;
-                }else {
-                    if((ts - curosr)/ 1000 > TIME_GAP) {
-                        if(depthMaps.size() == MAX_TIME_STATS / TIME_GAP) {
+                } else {
+                    if ((ts - curosr) / 1000 > TIME_GAP) {
+                        if (depthMaps.size() == MAX_TIME_STATS / TIME_GAP) {
                             //统计队列已满
                             depthMaps.remove(first);
                             //指向下一个
@@ -87,7 +87,7 @@ public class CoinDepthRunnable implements Runnable {
                         depthMaps.put(ts, depths);
                         //指向新的统计时间点
                         curosr = ts;
-                    }else {
+                    } else {
                         depthMaps.get(curosr).add(depth);
                     }
                 }
@@ -95,26 +95,28 @@ public class CoinDepthRunnable implements Runnable {
                 caculateDepth(depthMaps);
                 Thread.sleep(5000);
 
-            }catch (IOException e) {
+            } catch (IOException e) {
 //                e.printStackTrace();
                 Log.w("Depth", "request " + symbol + " depth network error!");
-            }catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
                 Log.w("Depth", "request " + symbol + " depth sleep error!");
+            } catch (Exception e){
+                e.printStackTrace();
             }
         }
     }
 
     private void caculateDepth(Map<Long, CopyOnWriteArrayList<MarketDepth>> map) {
         Iterator<Long> it = map.keySet().iterator();
-        if(!it.hasNext()) {
+        if (!it.hasNext()) {
             return;
         }
         NumberFormat format = NumberFormat.getInstance();
         format.setGroupingUsed(false);
         format.setMaximumFractionDigits(4);
         Long first = it.next();
-        if(map.get(first).get(0) == null) {
+        if (map.get(first).get(0) == null) {
             //没有深度列表
             return;
         }
@@ -173,7 +175,7 @@ public class CoinDepthRunnable implements Runnable {
             String sellP = (sellVolume >= totalSellVolume ? "+" : "-") + format.format(sellPercent) + "%";
             String msg = symbol + " " + (k * 5) + "min钟内深度，买盘涨幅:" + buyP + ", 卖盘涨幅:" + sellP;
             Log.e("Depth", msg);
-            if(buyPercent > 0.02 || sellPercent > 0.02) {
+            if (buyPercent > 0.02 || sellPercent > 0.02) {
                 //买盘大于2%
                 NotificationUtil.notification("火币买卖盘监控", msg);
             }

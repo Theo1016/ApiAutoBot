@@ -10,6 +10,7 @@ import com.alpha.apiautobot.domain.response.kucoin.BaseModel;
 import com.alpha.apiautobot.domain.response.kucoin.MarketModel;
 import com.alpha.apiautobot.domain.response.kucoin.TransactionOrderModel;
 import com.alpha.apiautobot.platform.binance.BinanceApiConstants;
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.http.*;
 
@@ -66,5 +67,13 @@ public interface KuCoinApiService {
      */
     @GET("/v1/open/orders")
     Call<TransactionOrderModel> requestOrders(@Query("symbol") String symobl, @Query("group")String group, @Query("limit")String limit);
+
+    /**
+     *
+     * 创建买卖单
+     */
+    @POST("/v1/order")
+    @FormUrlEncoded
+    Observable<BaseModel> createOrder(@Query("symbol") String symbol, @Field("type")String type, @Field("price")String price, @Field("amount")String amount);
 
 }

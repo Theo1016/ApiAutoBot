@@ -35,10 +35,13 @@ public class BotManager {
         monitoringRapidRiseAndFall();
         monitoringBigCapital();
 
+//        //启动火币
+//        HuobiPro huobiPro = new HuobiPro();
+//        huobiPro.connection();
 
-        //启动火币
-        HuobiPro huobiPro = new HuobiPro();
-        huobiPro.connection();
+        //做量策略
+
+
     }
 
     /**

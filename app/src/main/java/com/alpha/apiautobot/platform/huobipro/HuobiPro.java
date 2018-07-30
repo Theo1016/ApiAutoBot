@@ -128,14 +128,15 @@ public class HuobiPro extends AbstractPlatform {
                             String quoteCurrency = symbol.quoteCurrency;
                             if (!symbolsMap.containsKey(quoteCurrency)) {
                                 symbolsMap.put(quoteCurrency, new ArrayList<HRSymbols.Data>());
+                            }else{
+                                symbolsMap.get(quoteCurrency).add(symbol);
                             }
-                            symbolsMap.get(quoteCurrency).add(symbol);
                         });
                         isConnected = true;
                         lock.notifyAll();
                     } else {
                     }
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }

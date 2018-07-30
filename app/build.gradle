@@ -75,4 +75,11 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.5'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.8.5'
     compile 'com.fasterxml.jackson.core:jackson-core:2.8.5'
+
+    compile "android.arch.persistence.room:runtime:$rootProject.roomVersion"
+    annotationProcessor "android.arch.persistence.room:compiler:$rootProject.roomVersion"
+    // optional - RxJava support for Room
+    compile "android.arch.persistence.room:rxjava2:$rootProject.roomVersion"
+    compile "io.reactivex.rxjava2:rxandroid:$rootProject.rxandroidVersion"
+    compile "com.squareup.retrofit2:adapter-rxjava2:$rootProject.adapterRxjava2Version"
 }

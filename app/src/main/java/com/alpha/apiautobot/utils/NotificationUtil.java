@@ -7,6 +7,7 @@ import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
 import com.alpha.apiautobot.ApiAutoBotApplication;
+import com.alpha.apiautobot.R;
 
 import java.lang.ref.WeakReference;
 
@@ -48,7 +49,7 @@ public class NotificationUtil {
                 .setContentText(text)
                 .setWhen(System.currentTimeMillis())
                 .setPriority(NotificationCompat.PRIORITY_MAX)
-//                .setSmallIcon(R.drawable.kucoin_icon)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setVibrate(new long[]{0, 1000, 1000, 1000})
 //                .setLargeIcon(BitmapFactory.decodeResource(KucoinApp.getAppContext().getResources(), R.drawable.kucoin_icon))
                 .setAutoCancel(true)
